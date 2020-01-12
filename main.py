@@ -5,6 +5,7 @@ from datetime import time
 from datetime import datetime
 from datetime import timedelta
 import random
+import generator
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -19,12 +20,12 @@ class Teller(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     def __init__(self, cashbal, cashdenom):
-        self.cashbal = 
-        self cashdenom = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+        self.cashbal = 0
+        self.cashdenom = [0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-    def balance():
+"""    def balance():
         done = False
-        while done = False:
+        while done == False:
             hundreds =  # pull input from UI #TODO
             fifties =
             twenties =
@@ -41,28 +42,29 @@ class Teller(db.Model):
 
     def changecash(trancode, amount):  #TODO
         cur_cash = self.cashbal
+"""
 
+class Customer():   #need to add db.Model after database implementation for each Class
+    #id = db.Column(db.Integer, primary_key=True)
 
-class Customer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    def __init__(self, ssn, name, dob):
+    def __init__(self, id, ssn, name, dob):
+        self.id = id    #Will likely change after Database is added 
         self.ssn = ssn
         self.name = name
         self.dob = dob
 
 
-class Account(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    def __init__(self, ssns, acctn, bal, prod, date_opened, ave_balance, translist):
-        #Join with Customer DB via SSN #TODO
+class Account():
+                            #id = db.Column(db.Integer, primary_key=True)
+    def __init__(self, ssns, acctn, bal, prod, date_opened):
+                                        #Join with Customer DB via SSN #TODO
         self.acctn = id
-        self.balance = ave_balance
         self.prod = prod
         self. date_opened = date_opened
         self.ssns = ssns
-        #Join with Trans DB to call for specific Account number #TODO
+
+        #Store the parameter translist to easily do a query on all transactions associated with an account
+"""        #Join with Trans DB to call for specific Account number #TODO
 
     def print_pah():
         customername = self.sah
@@ -76,71 +78,55 @@ class Account(db.Model):
     def withdrawl(): #TODO
 
     def acctinq(): #TODO
-
+"""
 
 
     
-class Trans(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class Trans():
+    #id = db.Column(db.Integer, primary_key=True)
 
-    def __init__(self, time, Account, amount, description, trancode): #trancode needs to be direction specific to determine debit/credit #TODO
-        self.time = datetime
-        self.Account = #import accountdb
+    def __init__(self, id, time, amount, description, trancode): #trancode needs to be direction specific to determine debit/credit #TODO
+        self.id = id        # removed and reverted to previous commented line when moved to database
+        self.time = datetime                                        #self.Account = #import accountdb
         self.amount = amount
         self.description = description
         self.trancode = trancode
 
-    
+def generate_data():
+    cust_amount = input('Enter Number of Customers: ')
+    acct_amount = input('Enter Number of Accounts: ')
+    trans_amount = input('Enter Number of Transactions: ')
+    months = input('Enter How Many Months of Data:')
+    customer_list, account_list, trans_list = generator.generate(cust_amount, acct_amount, trans_amount, months)
+    new_Customer_list = []  #List of instantiated customer objects from generator data
+    new_Account_list = []
+    new_Trans_list = []
 
+    for customer in customer_list:
+        dob = customer.pop()
+        name = customer.pop()
+        ssn = customer.pop()
+        id = customer.pop()
+        new_Customer = Customer(id, ssn, name, dob)
+        new_Customer_list.append(new_Customer)
 
+    for account in account_list:
+        owner_ssn = account.pop()
+        date_opened = account.pop()
+        prod = account.pop()
+        bal = account.pop()
+        acct_number = account.pop()
+        new_Account = Account(owner_ssn, acct_number, bal, prod, date_opened)
+        new_Account_list.append(new_Account)
 
+    for transaction in trans_list:
+        tran_balance = transaction.pop()
+        desc = transaction.pop()
+        trancode = transaction.pop()
+        time = transaction.pop()
+        id = transaction.pop()
+        new_tran = Trans(id, time, tran_balance, desc, trancode)
+        new_Trans_list.append(new_tran)
 
-class Generator():
-
-    def random_n_digits(n):
-        range_start = 10**(n-1)
-        range_end = (10**n)-1
-        return random.randint(range_start,range_end)
-
-
-    def gen_n_digit_unique(amount, number_of_digits):
-        list_of_numbers = []
-        for i in amount:
-            if len(list_of_numbers) = 0:
-                nnum = Generator.random_n_digits(number_of_digits)
-                list_of_numbers.append(nnum)
-            else:
-                nnum = Generator.random_n_digits(number_of_digits)
-                while nnum in list_of_numbers:
-                    nnum = Generator.random_n_digits(number_of_digits)
-                list_of_numbers.append(nnum)
-        
-        return list_of_numbers
-    
-    def random_amount():
-        amount = round(random.uniform(1.5,500.5),2)
-        return amount
-
-    def random_datetime(start, end):
-        delta = end - start
-        int_delta = (timedelta.days * 24 * 60 * 60) + timedelta.seconds
-        random_second = random.randrange(int_delta)
-        return start + timedelta(seconds=random_second)
-
-    
-
-    def gen_customer(amount):
-        customer_list = []
-        passing_ssn = []
-        active_ssn = gen_n_digit_unique(amount, 9)
-        for i in amount:
-            id = 0 + i
-            ssn = list.pop(active_ssn)
-            name = random.choice(name_list)
-            dob = random_datetime()
-            customer = [id, ssn, name, dob]
-            customer_list.append(customer)
-            passing_ssn.append(ssn)
-        return customer_list, passing_ssn
-            
+    return new_Customer_list, new_Account_list, new_Trans_list
 
