@@ -1,5 +1,5 @@
-from flask import Flask, request, redirect, render_template, session, flash
-from flask_sqlalchemy import SQLAlchemy
+#from flask import Flask, request, redirect, render_template, session, flash
+#from flask_sqlalchemy import SQLAlchemy
 from datetime import date
 from datetime import time
 from datetime import datetime
@@ -7,6 +7,12 @@ from datetime import timedelta
 import random
 import generator
 
+__name__ = '__main__'
+
+
+#Trancodes shouldnt be stored in a CSV trancode is too functional to be handled that way. hardcode into its own module or into main module.
+
+'''
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = True
@@ -23,7 +29,7 @@ class Teller(db.Model):
         self.cashbal = 0
         self.cashdenom = [0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-"""    def balance():
+    def balance():
         done = False
         while done == False:
             hundreds =  # pull input from UI #TODO
@@ -42,7 +48,8 @@ class Teller(db.Model):
 
     def changecash(trancode, amount):  #TODO
         cur_cash = self.cashbal
-"""
+'''
+
 
 class Customer():   #need to add db.Model after database implementation for each Class
     #id = db.Column(db.Integer, primary_key=True)
@@ -53,23 +60,96 @@ class Customer():   #need to add db.Model after database implementation for each
         self.name = name
         self.dob = dob
 
+    def str_id(self):
+        cust_id = self.id
+        str_id = str(cust_id)
+        return  str_id
+
+    def str_ssn(self):
+        ssn = self.ssn
+        str_ssn = str(ssn)
+        return str_ssn
+
+    def str_dob(self):
+        dob = self.dob
+        str_dob = str(dob)
+        return str_dob
+
+    def parse_name(self):
+        full_name = str(self.name)
+        parsed_name = full_name.split(' ')
+        return parsed_name
+
+    def formatted_string_ssn(self):
+        str_ssn = str(self.ssn)
+        block1 = str_ssn[0:3]
+        block2 = str_ssn[3:5]
+        block3 = str_ssn[5:9]
+        formated_ssn = block1 + "-" + block2 + "-" + block3
+        return formated_ssn
+
+    @staticmethod
+    def store(customer):
+        str_id = customer.str_id()
+        str_ssn = customer.str_ssn()
+        name = customer.name
+        str_dob = customer.str_dob()
+        generator.write_cust(str_id, str_ssn, name, str_dob)
+
+    @staticmethod
+    def make_customer():
+
+        cust_id = input('Enter ID Number: ')
+        ssn = input('Enter SSN: ')
+        name = input('Enter Full Name: ')
+        dob = input('Enter Date of Birth:')
+        new_customer = Customer(cust_id, ssn, name, dob)
+        Customer.store(new_customer)
+        return new_customer
+
+
 
 class Account():
                             #id = db.Column(db.Integer, primary_key=True)
     def __init__(self, ssns, acctn, bal, prod, date_opened):
                                         #Join with Customer DB via SSN #TODO
-        self.acctn = id
+        self.acctn = acctn
         self.prod = prod
         self. date_opened = date_opened
         self.ssns = ssns
+        self.bal = bal
 
         #Store the parameter translist to easily do a query on all transactions associated with an account
-"""        #Join with Trans DB to call for specific Account number #TODO
+                                        # #Join with Trans DB to call for specific Account number #TODO
 
-    def print_pah():
-        customername = self.sah
-        print(customername)
+    @staticmethod
+    def store(account):
+        dt_date_opened = account.date_opened
+        ssns = account.ssns
+        acctn = account.acctn
+        bal = account.bal
+        prod = account.prod
+        date_opened = dt_date_opened.strftime('%m/%d/%Y %I:%M %p')
 
+        generator.write_account(ssns,acctn, bal, prod, date_opened)
+
+    @staticmethod
+    def make_account():
+        ssns = []
+        acctn = input('Enter Account Number: ')
+        number_of_owners = int(input('Enter Number of Account Owners: '))
+        for i in range(0,number_of_owners):
+            print(i)
+            ssn = input('Enter SSN: ')
+            ssns.append(ssn)
+        starting_balance = input('Enter Amount of Initial Deposit: ')
+        prod = input('Enter Product Name: ')
+        date_opened = datetime.now()
+        new_acct = Account(ssns,acctn, starting_balance, prod, date_opened)
+        Account.store(new_acct)
+        return new_acct
+
+'''
     def deposit(): #Still needs input #TODO
         #variable allocation
         #calculate new balance of teller GL
@@ -78,8 +158,8 @@ class Account():
     def withdrawl(): #TODO
 
     def acctinq(): #TODO
-"""
 
+'''
 
     
 class Trans():
@@ -107,7 +187,7 @@ def generate_data():
         name = customer.pop()
         ssn = customer.pop()
         id = customer.pop()
-        new_Customer = Customer(id, ssn, name, dob)
+        new_Customer = Customer(id, ssn, name, dob) #TODO problem here
         new_Customer_list.append(new_Customer)
 
     for account in account_list:
@@ -130,3 +210,12 @@ def generate_data():
 
     return new_Customer_list, new_Account_list, new_Trans_list
 
+
+def main():
+
+    Account.make_account()
+
+
+
+if __name__ == '__main__':
+    main()
