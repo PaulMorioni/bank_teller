@@ -1,15 +1,11 @@
-from datetime import date
-from datetime import time
-from datetime import datetime
-from datetime import timedelta
 import datetime
 import pandas as pd
-import numpy as np
+import numpy
 import os
 import random
-import calendar
 import time as tm
 import csv
+
 
 def random_n_digits(n):
         range_start = 10**(n-1)
@@ -32,9 +28,11 @@ def gen_n_digit_unique(amount, number_of_digits):
     
     return list_of_numbers
 
+
 def random_amount():
     amount = round(random.uniform(1.5,500.5),2)
     return amount
+
 
 def gen_customer(amount, months):
     int_amount = int(amount)
@@ -51,7 +49,8 @@ def gen_customer(amount, months):
         customer_list.append(customer)
         passing_ssn.append(ssn)
     return customer_list, passing_ssn
-        
+
+
 def gen_account(amount, ssns, months):
     active_account_numbers = gen_n_digit_unique(amount, 6)
     account_list = []
@@ -80,23 +79,25 @@ def gen_account(amount, ssns, months):
         account_list.append(account)
     
     return account_list
-    
+
+
 def gen_transaction(amount, account_list, months):
     trans_list = []
     id_list = gen_n_digit_unique(amount, 16)
     desc_list = read_description()
-    trancode_list = [1,2,3,4,5,6]
-    for i in account_list:
-        id = id_list.pop(0)
-        account = i     #needs to have an account number parameter to properly link
-        time = random_datetime(months)
-        trancode = random.choice(trancode_list) # TODO make trancode list
+    trancode_list = [1, 2, 3, 4, 5, 6]
+    for account in account_list:
+        tran_id = id_list.pop(0)
+        accountn = account[0]
+        tran_time = random_datetime(months)
+        trancode = random.choice(trancode_list)
         desc = random.choice(desc_list)
         tran_balance = random_amount()
-        tran = [time, id, tran_balance, desc, trancode, account]
+        tran = [tran_id, tran_time, tran_balance, desc, trancode, accountn]
         trans_list.append(tran)
+
+
     return trans_list
-        
             
 
 def str_time_prop(start, end, format, prop):
@@ -119,7 +120,7 @@ def str_time_prop(start, end, format, prop):
     return datetime_ptime      
 
 
-def monthdelta(date, delta):
+def month_delta(date, delta):
     delta = int(delta)
     m, y = (date.month-delta) % 12, date.year + ((date.month)-delta-1) // 12
     if not m: m = 12
@@ -127,17 +128,18 @@ def monthdelta(date, delta):
         29 if y%4==0 and not y%400==0 else 28,31,30,31,30,31,31,30,31,30,31][m-1])
     return date.replace(day=d,month=m, year=y)
 
-def random_datetime(amt_months):       
+
+def random_datetime(amt_months):
     prop = random.random()
-    end = date.today()
-    start = monthdelta(end, amt_months)
+    end = datetime.date.today()
+    start = month_delta(end, amt_months)
     zerotime = datetime.datetime.min.time()
     start_dt = datetime.datetime.combine(start, zerotime)
     end_dt = datetime.datetime.combine(end, zerotime)
     datetime_format = '%m/%d/%Y %I:%M %p'
     new_random_datetime = str_time_prop(start_dt, end_dt, datetime_format, prop)
     return new_random_datetime
-    
+
 
 def generate(cust_amount, acct_amount, trans_amount, months):
     
@@ -148,20 +150,27 @@ def generate(cust_amount, acct_amount, trans_amount, months):
     return customer_list, account_list, trans_list
     
 
+# Need to homogenize reading and writing csvs, either panda or csv but needs to be same module
+
+
+# May soon be big enough to move to its own csv_intepret module
 def read_names():
     names_series = pd.read_csv("C:\\Users\\llama\\bank_teller\\recources\\names.csv", squeeze=True)
     names_list = names_series.tolist()
     return names_list
+
 
 def read_products():
     prod_series = pd.read_csv("C:\\Users\\llama\\bank_teller\\recources\\products.csv", squeeze=True)
     prod_list = prod_series.tolist()
     return prod_list
 
+
 def read_description():
     desc_series = pd.read_csv("C:\\Users\\llama\\bank_teller\\recources\\trans_descriptions.csv", squeeze=True)
     desc_list = desc_series.tolist()
     return desc_list
+
 
 def write_cust(cust_id, ssn, name, dob):
     with open('recources/customers.csv', mode='a') as customer_file:
@@ -170,15 +179,43 @@ def write_cust(cust_id, ssn, name, dob):
         customer_writer.writerow([cust_id,ssn, name, dob])
 
 
+def read_cust():
+    customer_series = pd.read_csv("recources/customers.csv")
+    customer_list = customer_series.values.tolist()
+    return customer_list
+
+
 def write_account(ssns, acctn, bal, prod, date_opened):
     with open('recources/accounts.csv', mode='a') as account_file:
         account_writer = csv.writer(account_file, delimiter = ',', quotechar = '"', quoting=csv.QUOTE_MINIMAL)
 
         account_writer.writerow([ssns, acctn, bal, prod, date_opened])
-'''
-def write_tran(time, id, tran_balance, description, trancode, account):
+
+
+def read_account():
+    account_series = pd.read_csv("recources/accounts.csv")
+    account_list = account_series.values.tolist()
+    return account_list
+
+
+def write_tran(tran_id, tran_time, tran_balance, desc, trancode, accountn):
     with open('recources/transactions.csv', mode='a') as trans_file:
         trans_writer = csv.writer(trans_file, delimiter = ',', quotechar = '"', quoting=csv.QUOTE_MINIMAL)
 
-        trans_writer.writerow([ id, time, tran_balance, description, trancode, account])
+        trans_writer.writerow([tran_id, tran_time, tran_balance, desc, trancode, accountn])
+
+
+def read_tran():
+
+    tran_series = pd.read_csv("recources/transactions.csv")
+    tran_list = tran_series.values.tolist()
+    return tran_list
+
+
+'''
+def selective_overwrite():
+    Needs to be a function that can match a csv row with an objects ID and overwrite it with its new attribute
+    preferbly modular so it doesnt have to read all 3 individually
+    hope to expand to change the read and write functions to be similar
+
 '''
