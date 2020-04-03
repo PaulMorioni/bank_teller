@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset= "utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .error {
+            color:red;
+        }
+    </style>
+    {% if title %}
+        <title> {{ title }} </title>
+    {% else %}
+        <title>{{Bank Name}}</title>
+    {% endif %}
+
+</head>
+
+<body>
+
+{% if account_readout %}
+{% for account in accounts %}
+    <div style="margin-right: 10%;">
+        <ul>
+            <li>Account Number: {{account.acctn}}</li>
+            <li>Balance: {{account.bal}}</li>
+            <li>Type: {{account.product}}</li>
+        </ul>
+        <ul>
+            {% for customer in account.owners %}
+                <li>Name:  {{customer.name}}</li>
+                <li>Date of Birth:  {{customer.dob}}</li>
+                <li>SSN:  {{customer.ssn}}</li>
+            {%endfor%}
+        </ul>
+    </div>
+{%endfor%}
+
+{% else %}
+    <div>
+        <p>No Accounts to display</p>
+    </div>
+{%endif%}
+
+
+<a href="/home">Home</a>
+<a href="/balance">Balance</a>
+<a href="/buy">Buy Cash</a>
+<a href="/sell">Sell Cash</a>
+<a href="/deposit">Deposit</a>
+<a href="/withdrawal">Withdrawal</a>
+<a href="/transfer">Transfer</a>
+<a href="/inquiry">Inquiry</a>
+
+
+</body>
+</html>
