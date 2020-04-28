@@ -9,16 +9,15 @@
             color:red;
         }
     </style>
+
     {% if title %}
-        <title> {{ title }} </title>
-    {% else %}
-        <title>{{Bank Name}}</title>
+        <title>{{ title }}</title>
     {% endif %}
 
 </head>
 
-<body>
 
+<div {% block account_readout %}>
 {% if account_readout %}
 {% for account in accounts %}
     <div style="margin-right: 10%;">
@@ -28,7 +27,7 @@
             <li>Type: {{account.product}}</li>
         </ul>
         <ul>
-            {% for customer in account.owners %}
+            {% for customer in customers %}
                 <li>Name:  {{customer.name}}</li>
                 <li>Date of Birth:  {{customer.dob}}</li>
                 <li>SSN:  {{customer.ssn}}</li>
@@ -42,17 +41,20 @@
         <p>No Accounts to display</p>
     </div>
 {%endif%}
+</div>
+{% endblock %}
 
+<div class="sidebar">
+    <ul>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/balance">Balance</a></li>
+        <li><a href="/buy">Buy Cash</a></li>
+        <li><a href="/sell">Sell Cash</a></li>
+        <li><a href="/deposit">Deposit</a></li>
+        <li><a href="/withdrawal">Withdrawal</a></li>
+        <li><a href="/transfer">Transfer</a></li>
+        <li><a href="/inquiry">Inquiry</a></li>
+    </ul>
+</aside>
 
-<a href="/home">Home</a>
-<a href="/balance">Balance</a>
-<a href="/buy">Buy Cash</a>
-<a href="/sell">Sell Cash</a>
-<a href="/deposit">Deposit</a>
-<a href="/withdrawal">Withdrawal</a>
-<a href="/transfer">Transfer</a>
-<a href="/inquiry">Inquiry</a>
-
-
-</body>
 </html>

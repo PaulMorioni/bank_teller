@@ -6,16 +6,13 @@ import generator
 import re
 
 __name__ = '__main__'
-
-
-
-
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://bank_teller:bankandtrust@localhost:8889/bank_teller'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'y337ksdfwh34132w'
+
 
 #TODO Add a teller class to do teller functions through?? What should be done with buy/sell cash if not. (I.e. only effects Vault(maybe) and teller GL)
 '''
@@ -61,20 +58,25 @@ class Teller(db.Model):
             new_balance = current_balance + total
             current_account.balance = new_balance
    '''
-
+accounts_owners = db.Table('accounts_owners',
+    db.Column('account_id', db.Integer, db.ForeignKey('account.id')),
+    db.Column('customer_id', db.Integer, db.ForeignKey('customer.id')) 
+)  
 
 class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Columnd(db.String(100))
+    name = db.Column(db.String(100))
     dob = db.Column(db.Integer)
-    ssn = db.Column(db.Integer)
-
+    ssn = db.Column(db.Integer, unique=True)
+    accounts = db.relationship("Account", secondary=accounts_owners, lazy='subquery', 
+        backref=db.backref("customer", lazy=True))
+    
     def __init__(self, ssn, name, dob):
         self.ssn = ssn
         self.name = name
         self.dob = dob
 
-    def str_id(self):
+    '''def str_id(self):
         cust_id = self.id
         str_id = str(cust_id)
         return  str_id
@@ -103,14 +105,6 @@ class Customer(db.Model):
         return formated_ssn
 
     @staticmethod
-    def store(customer):
-        str_id = customer.str_id()
-        str_ssn = customer.str_ssn()
-        name = customer.name
-        str_dob = customer.str_dob()
-        generator.write_cust(str_id, str_ssn, name, str_dob)
-
-    @staticmethod
     def make_customer():
 
         cust_id = input('Enter ID Number: ')
@@ -121,81 +115,46 @@ class Customer(db.Model):
         Customer.store(new_customer)
         return new_customer
 
-    @staticmethod
-    def import_customers():
-        customer_obj_list = []
-        stored_customer_list = generator.read_cust()
-        for customer_atribute_list in stored_customer_list:
-            cust_id = customer_atribute_list[0]
-            ssn = customer_atribute_list[1]
-            name = customer_atribute_list[2]
-            dob = customer_atribute_list[3]
-            stored_customer_object = Customer(cust_id, ssn, name, dob)
-            customer_obj_list.append(stored_customer_object)
-        return customer_obj_list
-
-
+'''
 
 class Account(db.Model):
-    acctn = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    acctn = db.Column(db.Integer, unique=True)
     prod = db.Column(db.String(50))
-    date_opened = db.Column(db.String(25))
-    ssns = db.relationship('Customer', backref='ssn')
-    transactions = db.relationship('Trans', backref='account')
+    date_opened = db.Column(db.String(25))  #Owners should be stored in Account class as Account.customer?
+    transactions = db.relationship('Trans', backref='account', lazy='dynamic')
+    
     #TODO Need to set foreign keys for join table with customer ssn
-    def __init__(self, ssns, acctn, bal, prod, date_opened):
+    def __init__(self, owner_ids, acctn, bal, prod, date_opened):
                                         #Join with Customer DB via SSN #TODO
         self.acctn = acctn
         self.prod = prod
         self.date_opened = date_opened
-        self.ssns = ssns
+        self.owner_ids = owner_ids
         self.bal = bal
 
         #Store the parameter translist to easily do a query on all transactions associated with an account
                                         # #Join with Trans DB to call for specific Account number #TODO
 
 
-
-    @staticmethod
-    def store(account):
-        dt_date_opened = account.date_opened
-        ssns = account.ssns
-        acctn = account.acctn
-        bal = account.bal
-        prod = account.prod
-        date_opened = dt_date_opened.strftime('%m/%d/%Y %I:%M %p')
-
-        generator.write_account(ssns,acctn, bal, prod, date_opened)
-
+'''
     @staticmethod
     def make_account():
-        ssns = []
+        owner_ids = []
         acctn = input('Enter Account Number: ')
         number_of_owners = int(input('Enter Number of Account Owners: '))
         for i in range(0,number_of_owners):
             print(i)
             ssn = input('Enter SSN: ')
-            ssns.append(ssn)
+            owner_ids.append(ssn)
         starting_balance = input('Enter Amount of Initial Deposit: ')
         prod = input('Enter Product Name: ')
         date_opened = datetime.now()
-        new_acct = Account(ssns,acctn, starting_balance, prod, date_opened)
+        new_acct = Account(owner_ids,acctn, starting_balance, prod, date_opened)
         Account.store(new_acct)
         return new_acct
 
-    @staticmethod
-    def import_accounts():
-        account_obj_list = []
-        stored_account_list = generator.read_account()
-        for account_atribute_list in stored_account_list:
-            ssns = account_atribute_list[0]
-            acctn = account_atribute_list[1]
-            starting_balance = account_atribute_list[2]
-            prod = account_atribute_list[3]
-            date_opened = account_atribute_list[4]
-            account_object = Account(ssns, acctn, starting_balance, prod, date_opened)
-            account_obj_list.append(account_object)
-        return account_obj_list
+'''
 
 
 
@@ -206,17 +165,15 @@ class Trans(db.Model):
     amount = db.Column(db.String(50))
     description = db.Column(db.String(100))
     trancode = db.Column(db.Integer)
-    account = db.Column(db.Integer, db.ForeignKey('Account.acctn'))
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
 
-    def __init__(self, id : int, tran_time : datetime, amount : float, description : str, trancode: int, account: str):
+    def __init__(self, id : int, tran_time : datetime, amount : float, description : str, trancode: int):
         self.id = id
         self.time = tran_time
         self.amount = amount
         self.description = description
-        self.trancode = trancode
-        self.account = account
-
-
+        self.trancode = trancode 
+'''
     @staticmethod
     def make_transaction():
         tran_id = int(input('Enter ID Number: '))
@@ -228,36 +185,9 @@ class Trans(db.Model):
         new_transaction = Trans(tran_id, tran_time, amount, description, trancode, account_number)
         Trans.store(new_transaction)
         return new_transaction
+'''
 
-    @staticmethod
-    def store(tran):
-        dt_date_opened = tran.time
-        tran_id = tran.id
-        account = tran.account
-        amount = tran.amount
-        desc = tran.description
-        trancode = tran.trancode
-        tran_time = dt_date_opened.strftime('%m/%d/%Y %I:%M %p') #Why isnt time a date, it shouldnt already be a string until this line
-
-        generator.write_tran(tran_id, tran_time, amount, desc, trancode, account)
-
-    @staticmethod
-    def import_trans():
-        tran_obj_list = []
-        stored_tran_list = generator.read_tran()
-        for tran_attribute_list in stored_tran_list:
-            tran_id = tran_attribute_list[0]
-            tran_time = tran_attribute_list[1]
-            amount = tran_attribute_list[2]
-            desc = tran_attribute_list[3]
-            trancode = tran_attribute_list[4]
-            account = tran_attribute_list[5]
-            tran_object = Trans(tran_id, tran_time, amount, desc, trancode, account)
-            tran_obj_list.append(tran_object)
-        return tran_obj_list
-
-
-
+'''
 def generate_data():
     cust_amount = input('Enter Number of Customers: ')
     acct_amount = input('Enter Number of Accounts: ')
@@ -309,13 +239,78 @@ def startup():
     all_trans = Trans.import_trans()
     return all_customers, all_accounts, all_trans
 
-
-def main():
-
-all_customers, all_accounts, all_trans = startup()
+'''
+#def main():
 
 
 
+@app.route('/', methods = ['POST', 'GET'])
+def base():
+    title = "Test 1"
+    account_readout = True
+
+    accounts = Account.query.all()
+    customers = Customer.query.all()
+
+
+    return render_template("base.html", title=title, account_readout=account_readout, accounts=accounts, customers=customers)
+
+'''
+@app.route('/home', methods = ['POST', 'GET'])
+def home():
+    
+
+    return render_template()
+
+
+@app.route('/deposit', methods = ['POST', 'GET'])
+def deposit():
+
+    
+    return render_template()
+
+
+@app.route('/withdrawl', methods = ['POST', 'GET'])
+def withdrawl():
+
+
+    return render_template()
+
+@app.route('/transfer', methods = ['POST', 'GET'])
+def transfer():
+
+    
+    return render_template()
+
+
+@app.route('/inquiry', methods = ['POST', 'GET'])
+def inquiry():
+
+
+    return render_template()
+
+
+@app.route('/balance', methods = ['POST', 'GET'])
+def balance():
+
+
+    return render_template()
+
+
+@app.route('/buy', methods = ['POST', 'GET'])
+def buy():
+
+
+    return render_template()
+
+
+@app.route('/sell', methods = ['POST', 'GET'])
+def sell():
+
+
+    return render_template()
+'''
 
 if __name__ == '__main__':
-    main()
+
+    app.run()
