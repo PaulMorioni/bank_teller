@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div>
+    <h2>New Customer Form</h2>
+    <form action = "/new_customer" method = post>
+            <legend>New Customer Form</legend> 
+
+            <p>
+                {{ form.name.label }}<br>
+                {{ form.name }}
+                <br>
+                {% if form.name.errors %}
+                    <ul class="=errors">{% for error in form.name.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                {% endif %}
+
+                {{ form.dob.label }}<br>
+                {{ form.dob }}
+                <br>
+                {% if form.dob.errors %}
+                    <ul class="=errors">{% for error in form.dob.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
+                {% endif %}
+
+                {{ form.ssn.label }}<br>
+                {{ form.ssn }}
+                <br>
+                {% if form.ssn.errors %}
+                    <ul class="=errors">{% for error in form.ssn.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
+                {% endif %}
+
+                {% if form.errors %}
+                <ul class="=errors">{% for error in form.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
+                {% endif %}
+
+
+                {{ form.submit }}
+                <br>
+            </p>
+    </form>
+</div>
+</html>
+{% endblock %}

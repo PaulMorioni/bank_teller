@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div>
+    <h2>New Account Form</h2>
+    <form action = "new_account" method = post>
+            <legend>New Account Form</legend>  
+            <p>
+                {{ form.account_number.label }}<br>
+                {{ form.account_number }}
+            {% if form.account_number.errors %}
+                <ul class="=errors">{% for error in form.account_number.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+                <br>
+
+                {{ form.primary_ssn.label }}<br>
+                {{ form.primary_ssn }}
+            {% if form.primary_ssn.errors %}
+                <ul class="=errors">{% for error in form.primary_ssn.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+                <br>
+
+                {{ form.bal.label }}<br>
+                {{ form.bal }}
+            {% if form.bal.errors %}
+                <ul class="=errors">{% for error in form.bal.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+                <br>
+
+                {{ form.product.label }}<br>
+                {{ form.product }}
+            {% if form.product.errors %}
+                <ul class="=errors">{% for error in form.product.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+                <br>
+
+                {{ form.submit }}
+                <br>
+            </p>
+    </form>
+</div>
+</html>
+{% endblock %}
