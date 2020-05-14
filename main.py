@@ -1,9 +1,10 @@
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+from datetime import *
 import random
-import generator
 import re
+from forms import NewCustomerForm, NewAccountForm
+
 
 __name__ = '__main__'
 app = Flask(__name__)
@@ -15,16 +16,18 @@ app.secret_key = 'y337ksdfwh34132w'
 
 
 #TODO Add a teller class to do teller functions through?? What should be done with buy/sell cash if not. (I.e. only effects Vault(maybe) and teller GL)
-'''
+
 class Teller(db.Model):
 
-    
-    id = db.Column(db.Integer, primary_key=True)
+    teller_id = db.Column(db.Integer, primary_key=True)
+    cashbal = db.Column(db.Numeric(18,4))
+    cashdenom = db.Column(db.String(20))
 
     def __init__(self, cashbal, cashdenom):
         self.cashbal = 0
         self.cashdenom = [0,0,0,0,0,0,0,0,0,0,0,0,0]
 
+'''
     def balance():
         done = False
         hundreds = 0 # pull input from UI #TODO
@@ -59,14 +62,14 @@ class Teller(db.Model):
             current_account.balance = new_balance
    '''
 accounts_owners = db.Table('accounts_owners',
-    db.Column('account_id', db.Integer, db.ForeignKey('account.id')),
-    db.Column('customer_id', db.Integer, db.ForeignKey('customer.id')) 
+    db.Column('account_id', db.Integer, db.ForeignKey('account.account_id')),
+    db.Column('customer_id', db.Integer, db.ForeignKey('customer.customer_id'))
 )  
 
 class Customer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    dob = db.Column(db.Integer)
+    dob = db.Column(db.String(30))
     ssn = db.Column(db.Integer, unique=True)
     accounts = db.relationship("Account", secondary=accounts_owners, lazy='subquery', 
         backref=db.backref("customer", lazy=True))
@@ -118,20 +121,20 @@ class Customer(db.Model):
 '''
 
 class Account(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    account_id = db.Column(db.Integer, primary_key=True)
     acctn = db.Column(db.Integer, unique=True)
+    primary_ssn = db.Column(db.Integer)
     prod = db.Column(db.String(50))
-    date_opened = db.Column(db.String(25))  #Owners should be stored in Account class as Account.customer?
+    date_opened = db.Column(db.String(25))
+    bal = db.Column(db.Numeric(18,4))
     transactions = db.relationship('Trans', backref='account', lazy='dynamic')
     
-    #TODO Need to set foreign keys for join table with customer ssn
-    def __init__(self, owner_ids, acctn, bal, prod, date_opened):
-                                        #Join with Customer DB via SSN #TODO
+    def __init__(self, primary_ssn, acctn, bal, prod, date_opened):
+        self.primary_ssn = primary_ssn
         self.acctn = acctn
+        self.bal = bal
         self.prod = prod
         self.date_opened = date_opened
-        self.owner_ids = owner_ids
-        self.bal = bal
 
         #Store the parameter translist to easily do a query on all transactions associated with an account
                                         # #Join with Trans DB to call for specific Account number #TODO
@@ -162,10 +165,10 @@ class Account(db.Model):
 class Trans(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     time = db.Column(db.Integer)
-    amount = db.Column(db.String(50))
+    amount = db.Column(db.Numeric(18,4))
     description = db.Column(db.String(100))
     trancode = db.Column(db.Integer)
-    account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
+    account_id = db.Column(db.Integer, db.ForeignKey('account.account_id'))
 
     def __init__(self, id : int, tran_time : datetime, amount : float, description : str, trancode: int):
         self.id = id
@@ -173,75 +176,6 @@ class Trans(db.Model):
         self.amount = amount
         self.description = description
         self.trancode = trancode 
-'''
-    @staticmethod
-    def make_transaction():
-        tran_id = int(input('Enter ID Number: '))
-        account_number = input('Enter Account Number: ')
-        amount = float(input('Enter Amount: '))
-        description = input('Enter Description: ')
-        trancode = int(input('Enter Trancode: '))
-        tran_time = datetime.now()
-        new_transaction = Trans(tran_id, tran_time, amount, description, trancode, account_number)
-        Trans.store(new_transaction)
-        return new_transaction
-'''
-
-'''
-def generate_data():
-    cust_amount = input('Enter Number of Customers: ')
-    acct_amount = input('Enter Number of Accounts: ')
-    trans_amount = input('Enter Number of Transactions: ')
-    months = input('Enter How Many Months of Data:')
-    customer_list, account_list, trans_list = generator.generate(cust_amount, acct_amount, trans_amount, months)
-    new_Customer_list = []  #List of instantiated customer objects from generator data
-    new_Account_list = []
-    new_Trans_list = []
-
-    for customer in customer_list:
-        dob = customer.pop()
-        name = customer.pop()
-        ssn = customer.pop()
-        id = customer.pop()
-        new_Customer = Customer(id, ssn, name, dob)
-        new_Customer_list.append(new_Customer)
-        Customer.store(new_Customer)
-
-    for account in account_list:
-        owner_ssn = account.pop()
-        date_opened = account.pop()
-        prod = account.pop()
-        bal = account.pop()
-        acct_number = account.pop()
-        new_Account = Account(owner_ssn, acct_number, bal, prod, date_opened)
-        new_Account_list.append(new_Account)
-        Account.store(new_Account)
-
-    for transaction in trans_list:
-        accountn = transaction.pop()        #Pops in reverse order of the instantiation of a trans object
-        tran_balance = transaction.pop()
-        desc = transaction.pop()
-        trancode = transaction.pop()
-        tran_time = transaction.pop()
-        tran_id = transaction.pop()
-        new_Tran = Trans(tran_id, tran_time, tran_balance, desc, trancode, accountn)
-        new_Trans_list.append(new_Tran)
-        Trans.store(new_Tran)
-
-    return new_Customer_list, new_Account_list, new_Trans_list
-
-
-
-def startup():
-
-    all_customers = Customer.import_customers()
-    all_accounts = Account.import_accounts()
-    all_trans = Trans.import_trans()
-    return all_customers, all_accounts, all_trans
-
-'''
-#def main():
-
 
 
 @app.route('/', methods = ['POST', 'GET'])
@@ -255,7 +189,7 @@ def base():
 
     return render_template("base.html", title=title, account_readout=account_readout, accounts=accounts, customers=customers)
 
-'''
+
 @app.route('/home', methods = ['POST', 'GET'])
 def home():
     
@@ -285,9 +219,10 @@ def transfer():
 
 @app.route('/inquiry', methods = ['POST', 'GET'])
 def inquiry():
-
-
-    return render_template()
+    customer = Customer.query.filter_by(ssn='123456789').first()
+    accounts = customer.accounts
+    
+    return render_template('inquiry.html', account_readout=True, customer=customer, accounts=accounts)
 
 
 @app.route('/balance', methods = ['POST', 'GET'])
@@ -309,8 +244,64 @@ def sell():
 
 
     return render_template()
-'''
+
+@app.route('/new_account', methods = ['POST', 'GET'])
+def make_account():
+    form = NewAccountForm()
+
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('new_account.html', account_readout=False, form=form)
+        else:
+
+            account_number = form.account_number.data
+            primary_ssn = form.primary_ssn.data
+            opening_deposit =form.bal.data
+            product = form.product.data
+            date_opened = datetime.now()
+            str_date_opened = date_opened.strftime("%x")    
+
+            customer = Customer.query.filter_by(ssn=primary_ssn).first()
+            if customer:        #TODO most likely change this to a catch error
+                owner_ssn = customer.ssn
+                account = Account(owner_ssn, account_number, opening_deposit, product, str_date_opened)
+
+                customer.accounts.append(account)       #Relates customer to account owner.
+
+                db.session.add(account)
+                db.session.commit()
+                return render_template('success.html', title="Success")
+            else:
+                error = "Customer Does not Exist"
+                return render_template('new_account.html', error=error, account_readout=False, form=form)
+            
+
+    if request.method == 'GET':
+        return render_template('new_account.html', account_readout=False, form=form)
+
+
+@app.route('/new_customer', methods = ['POST', 'GET'])
+def make_customer():
+    form = NewCustomerForm(request.form)
+
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('new_customer.html', account_readout=False, form=form)
+        if form.validate():
+            name = form.name.data
+            dob = form.dob.data
+            ssn = form.ssn.data
+            customer = Customer(ssn, name, dob)
+            db.session.add(customer)
+            db.session.commit()
+
+            return render_template('success.html', title="Success")
+
+    if request.method == 'GET':
+        return render_template('new_customer.html', account_readout=False, form=form)
+
 
 if __name__ == '__main__':
 
     app.run()
+    

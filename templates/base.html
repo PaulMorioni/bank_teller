@@ -12,13 +12,16 @@
 
     {% if title %}
         <title>{{ title }}</title>
+    {% else %}
+        <title>No Title</title>
     {% endif %}
 
 </head>
 
-
-<div {% block account_readout %}>
+<div>
+{% block account_readout %}
 {% if account_readout %}
+{% if accounts %}
 {% for account in accounts %}
     <div style="margin-right: 10%;">
         <ul>
@@ -38,13 +41,21 @@
 
 {% else %}
     <div>
-        <p>No Accounts to display</p>
+        <p>No Accounts to Display</p>
     </div>
 {%endif%}
+
+{% else %}
+    <div>
+    </div>
+{%endif%}
+{% endblock %}
 </div>
+
+{% block content %}
 {% endblock %}
 
-<div class="sidebar">
+<div class="sidebar" style="margin-right: 90%;">
     <ul>
         <li><a href="/home">Home</a></li>
         <li><a href="/balance">Balance</a></li>
@@ -55,6 +66,5 @@
         <li><a href="/transfer">Transfer</a></li>
         <li><a href="/inquiry">Inquiry</a></li>
     </ul>
-</aside>
-
+</div>
 </html>

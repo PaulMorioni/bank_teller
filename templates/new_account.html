@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+{% if error %}
+<div>{{error}}</div> 
+{% endif %}
 <div>
     <h2>New Account Form</h2>
     <form action = "new_account" method = post>
