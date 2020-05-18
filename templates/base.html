@@ -25,17 +25,24 @@
 {% for account in accounts %}
     <div style="margin-right: 10%;">
         <ul>
-            <li>Account Number: {{account.acctn}}</li>
-            <li>Balance: {{account.bal}}</li>
-            <li>Type: {{account.product}}</li>
-        </ul>
-        <ul>
             {% for customer in customers %}
                 <li>Name:  {{customer.name}}</li>
                 <li>Date of Birth:  {{customer.dob}}</li>
                 <li>SSN:  {{customer.ssn}}</li>
             {%endfor%}
         </ul>
+        <ul>
+            <li>Account Number: {{account.acctn}}</li>
+            <li>Balance: {{account.bal}}</li>
+            <li>Type: {{account.product}}</li>
+        </ul>
+        {% if account.transactions %}
+        <ul>
+            {% for transaction in account.transactions %}
+            <li>Date: {{transaction.time}} | Description: {{transaction.description}} | Amount: {{transaction.amount}}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
     </div>
 {%endfor%}
 

@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import *
 import random
 import re
-from forms import NewCustomerForm, NewAccountForm
+from forms import NewCustomerForm, NewAccountForm, DepositForm
 
 
 __name__ = '__main__'
@@ -79,21 +79,6 @@ class Customer(db.Model):
         self.name = name
         self.dob = dob
 
-    '''def str_id(self):
-        cust_id = self.id
-        str_id = str(cust_id)
-        return  str_id
-
-    def str_ssn(self):
-        ssn = self.ssn
-        str_ssn = str(ssn)
-        return str_ssn
-
-    def str_dob(self):
-        dob = self.dob
-        str_dob = str(dob)
-        return str_dob
-
     def parse_name(self):
         full_name = str(self.name)
         parsed_name = full_name.split(' ')
@@ -107,18 +92,6 @@ class Customer(db.Model):
         formated_ssn = block1 + "-" + block2 + "-" + block3
         return formated_ssn
 
-    @staticmethod
-    def make_customer():
-
-        cust_id = input('Enter ID Number: ')
-        ssn = input('Enter SSN: ')
-        name = input('Enter Full Name: ')
-        dob = input('Enter Date of Birth:')
-        new_customer = Customer(cust_id, ssn, name, dob)
-        Customer.store(new_customer)
-        return new_customer
-
-'''
 
 class Account(db.Model):
     account_id = db.Column(db.Integer, primary_key=True)
@@ -136,46 +109,47 @@ class Account(db.Model):
         self.prod = prod
         self.date_opened = date_opened
 
-        #Store the parameter translist to easily do a query on all transactions associated with an account
-                                        # #Join with Trans DB to call for specific Account number #TODO
+    def calc_balance(self, trancode, amount):
+    
+        current_balance = self.bal
+        if trancode in (13, 113, 400):
+            new_balance = current_balance + amount
+            self.bal = new_balance
+            db.session.commit()
+        
+        elif trancode in (50, 500, 150):
+            new_balance = current_balance - amount
+            self.bal = new_balance
+            db.session.commit()
 
 
-'''
-    @staticmethod
-    def make_account():
-        owner_ids = []
-        acctn = input('Enter Account Number: ')
-        number_of_owners = int(input('Enter Number of Account Owners: '))
-        for i in range(0,number_of_owners):
-            print(i)
-            ssn = input('Enter SSN: ')
-            owner_ids.append(ssn)
-        starting_balance = input('Enter Amount of Initial Deposit: ')
-        prod = input('Enter Product Name: ')
-        date_opened = datetime.now()
-        new_acct = Account(owner_ids,acctn, starting_balance, prod, date_opened)
-        Account.store(new_acct)
-        return new_acct
-
-'''
-
-
+        
 
 
 class Trans(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    time = db.Column(db.Integer)
+    tran_id = db.Column(db.Integer, primary_key=True)
+    time = db.Column(db.String(25))
     amount = db.Column(db.Numeric(18,4))
     description = db.Column(db.String(100))
     trancode = db.Column(db.Integer)
     account_id = db.Column(db.Integer, db.ForeignKey('account.account_id'))
 
-    def __init__(self, id : int, tran_time : datetime, amount : float, description : str, trancode: int):
-        self.id = id
+    def __init__(self, tran_time, amount, description, trancode):
         self.time = tran_time
         self.amount = amount
         self.description = description
-        self.trancode = trancode 
+        self.trancode = trancode
+
+    def rounded_amount(self):
+        rounded_amount = round(self.amount, 2)
+        return rounded_amount
+
+    def time_datetime(self):
+            str_tran_date = self.time
+            tran_datetime = datetime.strptime(str_tran_date,'%x , %X')
+            return tran_datetime
+
+
 
 
 @app.route('/', methods = ['POST', 'GET'])
@@ -199,9 +173,33 @@ def home():
 
 @app.route('/deposit', methods = ['POST', 'GET'])
 def deposit():
+    form = DepositForm()
+    trancode = 13
 
-    
-    return render_template()
+    if request.method == 'GET':
+        
+        return render_template('deposit.html', account_readout = False, form=form)
+
+    else:
+        account_number = form.account.data
+
+        account = Account.query.filter_by(acctn=account_number).first()
+
+        amount = form.amount.data
+
+        desc = 'Deposit with Teller'
+        tran_time = datetime.now()
+        str_tran_time = tran_time.strftime('%x , %X')
+
+        new_deposit = Trans(str_tran_time, amount, desc, trancode)
+
+        account.transactions.append(new_deposit)
+
+        db.session.add(new_deposit)
+        account.calc_balance(trancode, amount)
+        db.session.commit()
+
+        return render_template('success.html' )
 
 
 @app.route('/withdrawl', methods = ['POST', 'GET'])
@@ -221,6 +219,8 @@ def transfer():
 def inquiry():
     customer = Customer.query.filter_by(ssn='123456789').first()
     accounts = customer.accounts
+    for account in accounts:
+        account.sort_tran_by_date()
     
     return render_template('inquiry.html', account_readout=True, customer=customer, accounts=accounts)
 
@@ -304,4 +304,3 @@ def make_customer():
 if __name__ == '__main__':
 
     app.run()
-    
