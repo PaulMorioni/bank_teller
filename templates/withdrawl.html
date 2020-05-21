@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if error %}
+<div>{{error}}</div>
+{% endif %}
+
+<div>
+    <h2>New Withdrawl</h2>
+    <form action = "/withdrawl" method= POST>
+        <p>
+            {{ form.account.label }}<br>
+            {{ form.account }}
+            <br>
+
+            {{ form.amount.label }}<br>
+            {{ form.amount }}
+            <br>
+
+            {{ form.submit }}
+            <br>
+        </p>
+    </form>
+</div>
+</html>
+{% endblock %}

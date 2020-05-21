@@ -87,3 +87,18 @@ class DepositForm(FlaskForm):
     amount = DecimalField('Amount of Deposit', [validators.DataRequired()])
     submit = SubmitField('Submit')
     
+
+class WithdrawlForm(FlaskForm):
+    class Meta:
+        cstf = False
+    
+    account = IntegerField('Account Number', [validators.DataRequired()])
+    amount = DecimalField('Amount of Withdrwl', [validators.DataRequired()])
+    submit = SubmitField('Submit')
+
+class InquiryForm(FlaskForm):
+    class Meta:
+        csrf = False
+    
+    account_number = IntegerField('Account Number' , validators = [validators.DataRequired()])
+    submit = SubmitField('Submit')

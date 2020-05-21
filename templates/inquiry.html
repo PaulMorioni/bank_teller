@@ -1,6 +1,99 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{customer.name}}</h1>
+
+    {% if form %}
+
+        {% if error %}
+            <div class="error">{{error}}</div> 
+        {% endif %}
+
+        <div>
+            <h2>Inquiry</h2>
+            <form action = "/inquiry" method= POST>
+                <p>
+                    {{ form.account_number.label }}<br>
+                    {{ form.account_number }}
+
+                    {% if form.account_number.errors %}
+                    <ul class="error">{% for error in form.account_number.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    {% endif %}
+                    <br>
+
+                    {{ form.submit }}
+                    <br>
+                </p>
+            </form>
+        </div>
+    {% endif %}
+
+
+    {%if inquiry %}
+        {% block inquiry %}
+            <div style="margin-left: 40%;" >
+
+                {% for customer in customers %}
+
+                    <table>
+                        <tr>
+                            <th>Name    </th>
+                            <th>Date of Birth   </th>
+                            <th>SSN    </th>
+                        </tr>
+
+                        <tr>
+                            <td>{{customer.name}}   </td>
+                            <td>{{customer.dob}}    </td>
+                            <td>{{customer.ssn}}    </td>
+                        </tr>
+                    </table>
+                {% endfor %}
+
+                {% if accounts %}
+                    {% for account in accounts %}
+                        <table>
+
+                            <tr>
+                                <th>Account Number    </th>
+                                <th>Balance    </th>
+                                <th>Type    </th>
+                            </tr>
+
+                            <tr>
+                                <td>{{account.acctn}}   </td>
+                                <td>{{account.bal}}   </td>
+                                <td>{{account.product}}   </td>
+                            </tr>
+                        </table>
+                        
+                        {% if account.transactions %}
+                            <table>
+
+                                <tr>
+                                    <th>Time    </th>
+                                    <th>Description </th>
+                                    <th>Amount  </th>
+                                </tr>
+
+
+                                {% for transaction in account.transactions %}
+                                    <tr>
+                                        <td>{{transaction.time}}    </td>
+                                        <td>{{transaction.description}}    </td>
+                                        <td>{{transaction.amount}}    </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+            </div>
+        {% endblock %}
+    {% endif %}
+
+</html>
+
+
 
 {% endblock %}

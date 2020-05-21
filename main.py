@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import *
 import random
 import re
-from forms import NewCustomerForm, NewAccountForm, DepositForm
+from forms import NewCustomerForm, NewAccountForm, DepositForm, WithdrawlForm, InquiryForm
 
 
 __name__ = '__main__'
@@ -122,6 +122,16 @@ class Account(db.Model):
             self.bal = new_balance
             db.session.commit()
 
+    def owners(self):
+        
+        owners = []
+
+        results = db.session.query(accounts_owners).filter(accounts_owners.c.account_id==self.account_id).all()
+        
+        for result in results:
+            owners.append(Customer.query.filter_by(customer_id=result.customer_id).first()) #returns customer from Table query object
+
+        return owners
 
         
 
@@ -205,6 +215,33 @@ def deposit():
 @app.route('/withdrawl', methods = ['POST', 'GET'])
 def withdrawl():
 
+    form = WithdrawlForm()
+    trancode = 50
+
+    if request.method == 'GET':
+        
+        return render_template('withdrawl.html', account_readout = False, form=form)
+
+    else:
+        account_number = form.account.data
+
+        account = Account.query.filter_by(acctn=account_number).first()
+
+        amount = form.amount.data
+
+        desc = 'Withdrawl with Teller'
+        tran_time = datetime.now()
+        str_tran_time = tran_time.strftime('%x , %X')
+
+        new_withdrawl = Trans(str_tran_time, amount, desc, trancode)
+
+        account.transactions.append(new_withdrawl)
+
+        db.session.add(new_withdrawl)
+        account.calc_balance(trancode, amount)
+        db.session.commit()
+
+        return render_template('success.html' )
 
     return render_template()
 
@@ -217,12 +254,30 @@ def transfer():
 
 @app.route('/inquiry', methods = ['POST', 'GET'])
 def inquiry():
-    customer = Customer.query.filter_by(ssn='123456789').first()
-    accounts = customer.accounts
-    for account in accounts:
-        account.sort_tran_by_date()
+    form = InquiryForm()
+    accounts = []
+
+    if request.method == 'GET':
+        
+        return render_template('inquiry.html', form=form, account_readout=False)
     
-    return render_template('inquiry.html', account_readout=True, customer=customer, accounts=accounts)
+    if request.method == 'POST':
+
+        if form.validate() == False:
+            return render_template('inquiry.html', form=form, account_readout=False)
+
+        if form.validate():
+            account_number = form.account_number.data
+            accounts.append(Account.query.filter_by(acctn=account_number).first())
+            for account in accounts:
+                if account != None:
+                    customers = account.owners()
+                
+                else:
+                    error = "Account does not exist"
+                    return render_template('inquiry.html', form=form, account_readout=False, error=error)
+    
+            return render_template('inquiry.html', account_readout=True, customers=customers, accounts=accounts)
 
 
 @app.route('/balance', methods = ['POST', 'GET'])
@@ -286,7 +341,9 @@ def make_customer():
 
     if request.method == 'POST':
         if form.validate() == False:
+
             return render_template('new_customer.html', account_readout=False, form=form)
+
         if form.validate():
             name = form.name.data
             dob = form.dob.data

@@ -15,25 +15,25 @@
                 {{ form.name }}
                 <br>
                 {% if form.name.errors %}
-                    <ul class="=errors">{% for error in form.name.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    <ul class="error">{% for error in form.name.errors %}<li>{{ error }}</li>{% endfor %}</ul>
                 {% endif %}
 
                 {{ form.dob.label }}<br>
                 {{ form.dob }}
                 <br>
                 {% if form.dob.errors %}
-                    <ul class="=errors">{% for error in form.dob.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
+                    <ul class="error">{% for error in form.dob.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
                 {% endif %}
 
                 {{ form.ssn.label }}<br>
                 {{ form.ssn }}
                 <br>
                 {% if form.ssn.errors %}
-                    <ul class="=errors">{% for error in form.ssn.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
+                    <ul class="error">{% for error in form.ssn.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
                 {% endif %}
 
                 {% if form.errors %}
-                <ul class="=errors">{% for error in form.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
+                <ul class="error">{% for error in form.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
                 {% endif %}
 
 

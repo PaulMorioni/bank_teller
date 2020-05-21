@@ -18,51 +18,74 @@
 
 </head>
 
-<div>
-{% block account_readout %}
 {% if account_readout %}
-{% if accounts %}
-{% for account in accounts %}
-    <div style="margin-right: 10%;">
-        <ul>
+    {% block account_readout %}
+        <div style="margin-left: 40%;" >
+
             {% for customer in customers %}
-                <li>Name:  {{customer.name}}</li>
-                <li>Date of Birth:  {{customer.dob}}</li>
-                <li>SSN:  {{customer.ssn}}</li>
-            {%endfor%}
-        </ul>
-        <ul>
-            <li>Account Number: {{account.acctn}}</li>
-            <li>Balance: {{account.bal}}</li>
-            <li>Type: {{account.product}}</li>
-        </ul>
-        {% if account.transactions %}
-        <ul>
-            {% for transaction in account.transactions %}
-            <li>Date: {{transaction.time}} | Description: {{transaction.description}} | Amount: {{transaction.amount}}</li>
+
+                <table>
+                    <tr>
+                        <th>Name    </th>
+                        <th>Date of Birth   </th>
+                        <th>SSN    </th>
+                    </tr>
+
+                    <tr>
+                        <td>{{customer.name}}   </td>
+                        <td>{{customer.dob}}    </td>
+                        <td>{{customer.ssn}}    </td>
+                    </tr>
+                </table>
             {% endfor %}
-        </ul>
-        {% endif %}
-    </div>
-{%endfor%}
 
-{% else %}
-    <div>
-        <p>No Accounts to Display</p>
-    </div>
-{%endif%}
+            {% if accounts %}
+                {% for account in accounts %}
+                    <table>
 
-{% else %}
-    <div>
-    </div>
-{%endif%}
-{% endblock %}
-</div>
+                        <tr>
+                            <th>Account Number    </th>
+                            <th>Balance    </th>
+                            <th>Type    </th>
+                        </tr>
+
+                        <tr>
+                            <td>{{account.acctn}}   </td>
+                            <td>{{account.bal}}   </td>
+                            <td>{{account.product}}   </td>
+                        </tr>
+                    </table>
+                    
+                    {% if account.transactions %}
+                        <table>
+
+                            <tr>
+                                <th>Time    </th>
+                                <th>Description </th>
+                                <th>Amount  </th>
+                            </tr>
+
+
+                            {% for transaction in account.transactions %}
+                                <tr>
+                                    <td>{{transaction.time}}    </td>
+                                    <td>{{transaction.description}}    </td>
+                                    <td>{{transaction.amount}}    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+        </div>
+    {% endblock %}
+{% endif %}
 
 {% block content %}
 {% endblock %}
 
-<div class="sidebar" style="margin-right: 90%;">
+<div class="sidebar" style="padding-right: 90%; padding-top: -10%;">
     <ul>
         <li><a href="/home">Home</a></li>
         <li><a href="/balance">Balance</a></li>
