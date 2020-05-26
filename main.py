@@ -268,16 +268,16 @@ def inquiry():
 
         if form.validate():
             account_number = form.account_number.data
-            accounts.append(Account.query.filter_by(acctn=account_number).first())
+            accounts.append(Account.query.filter_by(acctn=account_number).first())  #Add account submited by form to accounts
             for account in accounts:
-                if account != None:
-                    customers = account.owners()
+                if account != None:     #Aslong as account list isnt empty 
+                    customers = account.owners()    #Add customers of selected account to customers
                 
                 else:
                     error = "Account does not exist"
                     return render_template('inquiry.html', form=form, account_readout=False, error=error)
     
-            return render_template('inquiry.html', account_readout=True, customers=customers, accounts=accounts)
+            return render_template('inquiry.html', inquiry=True, customers=customers, accounts=accounts)
 
 
 @app.route('/balance', methods = ['POST', 'GET'])
@@ -314,7 +314,7 @@ def make_account():
             opening_deposit =form.bal.data
             product = form.product.data
             date_opened = datetime.now()
-            str_date_opened = date_opened.strftime("%x")    
+            str_date_opened = date_opened.strftime("%x")
 
             customer = Customer.query.filter_by(ssn=primary_ssn).first()
             if customer:        #TODO most likely change this to a catch error

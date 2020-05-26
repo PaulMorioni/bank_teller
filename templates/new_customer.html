@@ -2,11 +2,10 @@
 
 {% block content %}
 {% if error %}
-<div>{{error}}</div> 
+<div class="error">{{error}}</div> 
 {% endif %}
 
 <div>
-    <h2>New Customer Form</h2>
     <form action = "/new_customer" method = POST>
             <legend>New Customer Form</legend> 
 

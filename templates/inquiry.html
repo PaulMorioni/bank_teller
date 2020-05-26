@@ -2,97 +2,84 @@
 
 {% block content %}
 
+<div class="form-group">
     {% if form %}
 
         {% if error %}
             <div class="error">{{error}}</div> 
         {% endif %}
+                <form action = "/inquiry" method= POST>
+                    <legend>Inquiry</legend>
+                    <p class="inquiry">
+                        {{ form.account_number.label }}<br>
+                        {{ form.account_number }}
 
-        <div>
-            <h2>Inquiry</h2>
-            <form action = "/inquiry" method= POST>
-                <p>
-                    {{ form.account_number.label }}<br>
-                    {{ form.account_number }}
-
-                    {% if form.account_number.errors %}
-                    <ul class="error">{% for error in form.account_number.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-                    {% endif %}
-                    <br>
-
-                    {{ form.submit }}
-                    <br>
-                </p>
-            </form>
-        </div>
-    {% endif %}
-
-
-    {%if inquiry %}
-        {% block inquiry %}
-            <div style="margin-left: 40%;" >
-
-                {% for customer in customers %}
-
-                    <table>
-                        <tr>
-                            <th>Name    </th>
-                            <th>Date of Birth   </th>
-                            <th>SSN    </th>
-                        </tr>
-
-                        <tr>
-                            <td>{{customer.name}}   </td>
-                            <td>{{customer.dob}}    </td>
-                            <td>{{customer.ssn}}    </td>
-                        </tr>
-                    </table>
-                {% endfor %}
-
-                {% if accounts %}
-                    {% for account in accounts %}
-                        <table>
-
-                            <tr>
-                                <th>Account Number    </th>
-                                <th>Balance    </th>
-                                <th>Type    </th>
-                            </tr>
-
-                            <tr>
-                                <td>{{account.acctn}}   </td>
-                                <td>{{account.bal}}   </td>
-                                <td>{{account.product}}   </td>
-                            </tr>
-                        </table>
-                        
-                        {% if account.transactions %}
-                            <table>
-
-                                <tr>
-                                    <th>Time    </th>
-                                    <th>Description </th>
-                                    <th>Amount  </th>
-                                </tr>
-
-
-                                {% for transaction in account.transactions %}
-                                    <tr>
-                                        <td>{{transaction.time}}    </td>
-                                        <td>{{transaction.description}}    </td>
-                                        <td>{{transaction.amount}}    </td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
+                        {% if form.account_number.errors %}
+                        <ul class="error">{% for error in form.account_number.errors %}<li>{{ error }}</li>{% endfor %}</ul>
                         {% endif %}
-                    {% endfor %}
-                {% endif %}
+                        <br>
 
-            </div>
-        {% endblock %}
+                        {{ form.submit }}
+                        <br>
+                    </p>
+                </form>
     {% endif %}
+</div>
 
-</html>
+
+{% if inquiry %}
+    {% for customer in customers %}
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <th>Name</th>
+                <th>Date of Birth</th>
+                <th>SSN</th>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>{{customer.name}}</td>
+                    <td>{{customer.dob}}</td>
+                    <td>{{customer.ssn}}</td>
+                </tr>
+            </tbody>
+    {% endfor %}
+
+    {% for account in accounts %}
+            <thead class="thead-dark">
+                <th>Account Number</th>
+                <th>Balance</th>
+                <th>Type</th>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>{{account.acctn}}</td>
+                    <td>{{account.bal}}</td>
+                    <td>{{account.product}}</td>
+                </tr>
+            </tbody>
+
+            <thead class="thead-dark">
+                <th>Time</th>
+                <th>Description</th>
+                <th>Amount</th>
+            </thead>
+
+            <tbody>
+                {% for transaction in account.transactions %}
+                    <tr>
+                        <td>{{transaction.time}}</td>
+                        <td>{{transaction.description}}</td>
+                        <td>{{transaction.amount}}</td>
+                    </tr>
+                {%endfor%}
+            </tbody>
+
+        </table>
+    {%endfor%}
+{%endif%}
+
 
 
 
