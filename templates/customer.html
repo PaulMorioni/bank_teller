@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if customer %}
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <th>Name</th>
+                <th>Date of Birth</th>
+                <th>SSN</th>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>{{customer.name}}</td>
+                    <td>{{customer.dob}}</td>
+                    <td>{{customer.ssn}}</td>
+                </tr>
+            </tbody>
+
+
+            <thead class="thead-dark">
+                <th>Account Number</th>
+                <th>Balance</th>
+                <th>Type</th>
+            </thead>
+            {% for account in accounts %}
+            <tbody>
+                <tr>
+                    <td><a href="inquiry?acct={{account.account_id}}">{{account.acctn}}</a></td>
+                    <td>{{account.formatted_balance()}}</td>
+                    <td>{{account.prod}}</td>
+                </tr>
+            </tbody>
+            {%endfor%}
+        </table>
+{%endif%}
+{% endblock %}

@@ -1,7 +1,7 @@
 import flask_wtf
 import wtforms
 from flask_wtf import FlaskForm, CSRFProtect
-from wtforms import DecimalField, StringField, DateTimeField, IntegerField, RadioField, SubmitField, validators, Form
+from wtforms import DecimalField, StringField, DateTimeField, IntegerField, RadioField, SubmitField, validators, Form, SelectField
 from wtforms.validators import Length, DataRequired
 
 
@@ -90,7 +90,7 @@ class DepositForm(FlaskForm):
 
 class WithdrawlForm(FlaskForm):
     class Meta:
-        cstf = False
+        csrf = False
     
     account = IntegerField('Account Number', [validators.DataRequired()])
     amount = DecimalField('Amount of Withdrwl', [validators.DataRequired()])
@@ -101,4 +101,13 @@ class InquiryForm(FlaskForm):
         csrf = False
     
     account_number = IntegerField('Account Number' , validators = [validators.DataRequired()])
+    submit = SubmitField('Submit')
+
+class SearchForm(FlaskForm):
+    class Meta:
+        csrf = False
+    search_type = RadioField('Type', validators = [validators.DataRequired()], choices=[('customer','Customer'), ('account', 'Account')],)
+    attr_type = SelectField('Search Parameter', choices = [], validators = [validators.DataRequired()])
+    search_param = StringField('Search For', validators = [validators.DataRequired()])
+    
     submit = SubmitField('Submit')

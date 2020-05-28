@@ -38,14 +38,14 @@
 
             <tbody>
                 <tr>
-                    <td>{{customer.name}}</td>
+                    <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
                     <td>{{customer.dob}}</td>
                     <td>{{customer.ssn}}</td>
                 </tr>
             </tbody>
     {% endfor %}
 
-    {% for account in accounts %}
+    {% if account %}
             <thead class="thead-dark">
                 <th>Account Number</th>
                 <th>Balance</th>
@@ -55,8 +55,8 @@
             <tbody>
                 <tr>
                     <td>{{account.acctn}}</td>
-                    <td>{{account.bal}}</td>
-                    <td>{{account.product}}</td>
+                    <td>{{account.formatted_balance()}}</td>
+                    <td>{{account.prod}}</td>
                 </tr>
             </tbody>
 
@@ -71,13 +71,13 @@
                     <tr>
                         <td>{{transaction.time}}</td>
                         <td>{{transaction.description}}</td>
-                        <td>{{transaction.amount}}</td>
+                        <td>{{transaction.formatted_amount()}}</td>
                     </tr>
                 {%endfor%}
             </tbody>
 
         </table>
-    {%endfor%}
+    {%endif%}
 {%endif%}
 
 

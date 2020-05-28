@@ -3,7 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import *
 import random
 import re
-from forms import NewCustomerForm, NewAccountForm, DepositForm, WithdrawlForm, InquiryForm
+from forms import NewCustomerForm, NewAccountForm, DepositForm, WithdrawlForm, InquiryForm, SearchForm
+import locale
+
 
 
 __name__ = '__main__'
@@ -13,6 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://bank_teller:bankandtrus
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'y337ksdfwh34132w'
+locale.setlocale( locale.LC_ALL,'English_United States.1252')
 
 
 #TODO Add a teller class to do teller functions through?? What should be done with buy/sell cash if not. (I.e. only effects Vault(maybe) and teller GL)
@@ -92,6 +95,16 @@ class Customer(db.Model):
         formated_ssn = block1 + "-" + block2 + "-" + block3
         return formated_ssn
 
+    @staticmethod
+    def search_customer(attr_search, search_param): #TODO determine best way to do fuzzy search
+        if attr_search == 'name':
+            search_return = Customer.query.filter(Customer.name.like(search_param)).all()
+        elif attr_search == 'dob':
+            search_return = Customer.query.filter_by(dob=search_param).all()
+        elif attr_search == 'ssn':
+            search_return = Customer.query.filter_by(ssn=search_param).all()
+
+        return search_return
 
 class Account(db.Model):
     account_id = db.Column(db.Integer, primary_key=True)
@@ -133,7 +146,14 @@ class Account(db.Model):
 
         return owners
 
-        
+    def formatted_balance(self):
+        formatted_bal = locale.currency(self.bal, grouping=True)
+        return formatted_bal
+
+    @staticmethod
+    def search_account(attr_search, search_param):
+        search_return = Account.query.filter_by(attr_search=search_param).all()
+        return search_return
 
 
 class Trans(db.Model):
@@ -158,6 +178,10 @@ class Trans(db.Model):
             str_tran_date = self.time
             tran_datetime = datetime.strptime(str_tran_date,'%x , %X')
             return tran_datetime
+    
+    def formatted_amount(self):
+        fmt_amt = locale.currency(self.amount, grouping=True)
+        return fmt_amt
 
 
 
@@ -195,21 +219,29 @@ def deposit():
 
         account = Account.query.filter_by(acctn=account_number).first()
 
-        amount = form.amount.data
+        if account != None: #If account could be located
 
-        desc = 'Deposit with Teller'
-        tran_time = datetime.now()
-        str_tran_time = tran_time.strftime('%x , %X')
+            amount = form.amount.data
 
-        new_deposit = Trans(str_tran_time, amount, desc, trancode)
+            desc = 'Deposit with Teller'
+            tran_time = datetime.now()
+            str_tran_time = tran_time.strftime('%x , %X')
 
-        account.transactions.append(new_deposit)
+            new_deposit = Trans(str_tran_time, amount, desc, trancode)
 
-        db.session.add(new_deposit)
-        account.calc_balance(trancode, amount)
-        db.session.commit()
+            account.transactions.append(new_deposit)
 
-        return render_template('success.html' )
+            db.session.add(new_deposit)
+            account.calc_balance(trancode, amount)
+            db.session.commit()
+
+            return render_template('success.html' )
+    
+        else:
+            error = "Account Not Found"
+            return render_template('deposit.html', account_readout = False, form=form, error=error)
+
+        
 
 
 @app.route('/withdrawl', methods = ['POST', 'GET'])
@@ -255,10 +287,15 @@ def transfer():
 @app.route('/inquiry', methods = ['POST', 'GET'])
 def inquiry():
     form = InquiryForm()
-    accounts = []
+    account_id = request.args.get('acct')
 
-    if request.method == 'GET':
-        
+    if request.method == 'GET' and account_id: #determines if link from search page or if navigation to form
+        account = Account.query.filter_by(account_id=account_id).first()
+        customers = account.owners()    
+
+        return render_template('inquiry.html', account_readout=False, customers=customers, account=account, inquiry=True)
+
+    else:
         return render_template('inquiry.html', form=form, account_readout=False)
     
     if request.method == 'POST':
@@ -268,16 +305,15 @@ def inquiry():
 
         if form.validate():
             account_number = form.account_number.data
-            accounts.append(Account.query.filter_by(acctn=account_number).first())  #Add account submited by form to accounts
-            for account in accounts:
-                if account != None:     #Aslong as account list isnt empty 
-                    customers = account.owners()    #Add customers of selected account to customers
+            account = Account.query.filter_by(acctn=account_number).first()  #Add account submited by form to accounts
+            if account:
+                customers = account.owners()    #Add customers of selected account to customers
                 
-                else:
-                    error = "Account does not exist"
-                    return render_template('inquiry.html', form=form, account_readout=False, error=error)
+            else:
+                error = "Account does not exist"
+                return render_template('inquiry.html', form=form, account_readout=False, error=error)
     
-            return render_template('inquiry.html', inquiry=True, customers=customers, accounts=accounts)
+            return render_template('inquiry.html', inquiry=True, customers=customers, account=account)
 
 
 @app.route('/balance', methods = ['POST', 'GET'])
@@ -357,6 +393,34 @@ def make_customer():
     if request.method == 'GET':
         return render_template('new_customer.html', account_readout=False, form=form)
 
+@app.route('/search', methods = ['POST', 'GET'])
+def search():
+    form = SearchForm()
+    form.attr_type.choices = [('name', 'Name'), ('dob', 'Date of Birth'),('ssn', 'SSN')]
+    
+    if request.method == 'GET':
+        
+        return render_template('search.html', form=form)
+
+
+    if request.method == 'POST' and form.validate():   #Uses radio button to determine which Class search function to call.
+        if form.search_type.data == 'customer':
+            customers = Customer.search_customer(form.attr_type.data, form.search_param.data)   #TODO Add links to accounts and customers to Inquiry page.
+            return render_template('search.html', search_return=True, customers=customers)
+        if form.search_type == 'account':
+            accounts = Account.search_account(form.attr_type.data, form.search_param.data)
+            return render_template('search.html', search_return=True, accounts=accounts)
+        
+    else:
+        return render_template('search.html', form=form)
+
+@app.route('/customer')
+def customer_inquiry():
+    customer_id = request.args.get("cid")
+    customer = Customer.query.filter_by(customer_id=customer_id).first()    
+    accounts = customer.accounts
+
+    return render_template('customer.html', customer=customer, accounts=accounts)
 
 if __name__ == '__main__':
 

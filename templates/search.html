@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{%block content%}
+
+{% if form %}
+    <form action="/search" method="POST">
+        <legend>Search</legend>
+
+        {{ form.search_type.label }}
+        {{ form.search_type }}
+
+        {{ form.attr_type.label }}
+        {{ form.attr_type }}
+
+        {{ form.search_param.label }}
+        {{ form.search_param }}
+        
+        {{form.submit}}
+    </form>
+{% endif %}
+
+{% if search_return %}
+
+{% for customer in customers %}
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <th>Name</th>
+        <th>Date of Birth</th>
+        <th>SSN</th>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
+            <td>{{customer.dob}}</td>
+            <td>{{customer.ssn}}</td>
+        </tr>
+    </tbody>
+</table>
+{% endfor %}
+
+    {% if accounts %}
+        <table>
+            <thead class="thead-dark">
+                <th>Account Number</th>
+                <th>Balance</th>
+                <th>Type</th>
+            </thead>
+            {% for account in accounts %}
+            <tbody>
+                <tr>
+                    <td><a href="inquiry?acct={{account.account_id}}">{{account.acctn}}</a></td>
+                    <td>{{account.formatted_balance()}}</td>
+                    <td>{{account.prod}}</td>
+                </tr>
+            </tbody>
+            {%endfor%}
+        </table>
+    {%endif%}
+    
+{% endif %}
+
+
+
+{% endblock %}
