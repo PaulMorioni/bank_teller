@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import *
 import random
 import re
-from forms import NewCustomerForm, NewAccountForm, DepositForm, WithdrawlForm, InquiryForm, SearchForm
+from forms import NewCustomerForm, NewAccountForm, DepositForm, WithdrawlForm, InquiryForm, SearchForm, TransferForm
 import locale
 
 
@@ -217,7 +217,7 @@ def deposit():
     else:
         account_number = form.account.data
 
-        account = Account.query.filter_by(acctn=account_number).first()
+        account = Account.query.filter_by(acctn=account_number).first() #retireves account
 
         if account != None: #If account could be located
 
@@ -254,10 +254,10 @@ def withdrawl():
         
         return render_template('withdrawl.html', account_readout = False, form=form)
 
-    else:
+    else:   #TODO add catch for account that couldnt be found
         account_number = form.account.data
 
-        account = Account.query.filter_by(acctn=account_number).first()
+        account = Account.query.filter_by(acctn=account_number).first() # finds account
 
         amount = form.amount.data
 
@@ -265,23 +265,73 @@ def withdrawl():
         tran_time = datetime.now()
         str_tran_time = tran_time.strftime('%x , %X')
 
-        new_withdrawl = Trans(str_tran_time, amount, desc, trancode)
+        new_withdrawl = Trans(str_tran_time, amount, desc, trancode)    # makes new transaction
 
-        account.transactions.append(new_withdrawl)
+        account.transactions.append(new_withdrawl)  # adds transaction to account
 
         db.session.add(new_withdrawl)
-        account.calc_balance(trancode, amount)
+        account.calc_balance(trancode, amount)  #calculates balance of account
         db.session.commit()
 
         return render_template('success.html' )
 
-    return render_template()
 
 @app.route('/transfer', methods = ['POST', 'GET'])
 def transfer():
-
+    form = TransferForm()
+    debit_trancode = 50
+    credit_trancode = 13
     
-    return render_template()
+
+    if request.method == 'GET':
+        return render_template('transfer.html', form=form)
+
+    else:   # preforms transfer upon validation
+        if form.validate():
+            debit_account_num = form.debit_account.data
+            credit_account_num = form.credit_account.data
+            amount = form.amount.data
+
+            debit_account =  Account.query.filter_by(acctn=debit_account_num).first()   #Retrieves accounts
+            credit_account = Account.query.filter_by(acctn=credit_account_num).first()
+
+            if credit_account and debit_account:
+
+                debit_desc = 'Transfer to ' + str(debit_account_num)      #This block organizes data to create transaction
+                credit_desc = 'Transfer from ' + str(credit_account_num)
+                tran_time = datetime.now()
+                str_tran_time = tran_time.strftime('%x , %X')
+
+
+                debit_trans = Trans(str_tran_time,amount,debit_desc, debit_trancode)    #creates transactions to be added to accounts' list
+                credit_trans = Trans(str_tran_time,amount, credit_desc, credit_trancode)
+
+
+                debit_account.transactions.append(debit_trans)  #Adds transactions to respective accounts
+                credit_account.transactions.append(credit_trans)
+
+                db.session.add(debit_trans)
+                db.session.add(credit_trans)
+
+                debit_account.calc_balance(debit_trans.trancode, amount)    #calculates new balance of account
+                credit_account.calc_balance(credit_trans.trancode, amount)
+                db.session.commit()
+
+                return render_template('success.html')
+
+            else:
+                if debit_account:
+                    error = 'Credit Account not found'
+                elif credit_account:
+                    error = 'Debit Account not found'
+                elif not debit_account or credit_account:
+                    error = 'Accounts not found'
+                return render_template('transfer.html', form=form, error=error)
+
+        else:
+            return render_template('transfer.html', form=form)
+    
+    
 
 
 @app.route('/inquiry', methods = ['POST', 'GET'])
@@ -393,7 +443,7 @@ def make_customer():
     if request.method == 'GET':
         return render_template('new_customer.html', account_readout=False, form=form)
 
-@app.route('/search', methods = ['POST', 'GET'])
+@app.route('/search', methods = ['POST', 'GET'])    #TODO add fuzzy search functionality.propbably with postgresql
 def search():
     form = SearchForm()
     form.attr_type.choices = [('name', 'Name'), ('dob', 'Date of Birth'),('ssn', 'SSN')]
@@ -405,7 +455,7 @@ def search():
 
     if request.method == 'POST' and form.validate():   #Uses radio button to determine which Class search function to call.
         if form.search_type.data == 'customer':
-            customers = Customer.search_customer(form.attr_type.data, form.search_param.data)   #TODO Add links to accounts and customers to Inquiry page.
+            customers = Customer.search_customer(form.attr_type.data, form.search_param.data)
             return render_template('search.html', search_return=True, customers=customers)
         if form.search_type == 'account':
             accounts = Account.search_account(form.attr_type.data, form.search_param.data)

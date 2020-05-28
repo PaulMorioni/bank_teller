@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+
+{% if error %}
+<div class="error">{{error}}</div>
+{% endif %}
+
+    <div>
+        <legend>Transfer</legend>
+        <form action = "/transfer" method= POST>
+            <p>
+                {{ form.debit_account.label }}<br>
+                {{ form.debit_account }}
+                <br>
+
+                {{ form.credit_account.label }}<br>
+                {{ form.credit_account }}
+                <br>
+
+                {{ form.amount.label }}<br>
+                {{ form.amount }}
+                <br>
+
+                {{ form.submit }}
+                <br>
+            </p>
+        </form>
+    </div>
+{% endblock %}

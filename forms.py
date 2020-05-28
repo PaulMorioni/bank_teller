@@ -111,3 +111,14 @@ class SearchForm(FlaskForm):
     search_param = StringField('Search For', validators = [validators.DataRequired()])
     
     submit = SubmitField('Submit')
+
+class TransferForm(FlaskForm):
+    class Meta:
+        csrf = False
+    
+    debit_account = IntegerField('Debit Account Number', [validators.DataRequired()])
+    credit_account = IntegerField('Credit Account Number', [validators.DataRequired()])
+
+    amount = DecimalField('Amount of Withdrawl', [validators.DataRequired()])
+
+    submit = SubmitField('Submit')
