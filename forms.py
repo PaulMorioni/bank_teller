@@ -36,14 +36,15 @@ class NewAccountForm(FlaskForm):
     product = RadioField('Product', [validators.DataRequired()], choices=products)
     submit = SubmitField('Submit')
 
-'''
+
 class CustomerForm(FlaskForm):
     class Meta:
         csrf = False        #TODO make a dynamic field to add multiple customers to an account at a time.
-    for customers in 
-    primary_ssn = StringField('Social Security Number' , [validators.DataRequired(), validators.Length(min=9,max=9,message="SSNs are 9 Digits") ])
+    account = IntegerField('Account Number', [validators.DataRequired()])
+    new_ssn = StringField('Social Security Number' , [validators.DataRequired(), validators.Length(min=9,max=9,message="SSNs are 9 Digits") ])
+    submit = SubmitField('Add Customer')
 
-
+'''
 class NumberOfCustomers(Form):
     class Meta:
         csrf = False
@@ -122,3 +123,21 @@ class TransferForm(FlaskForm):
     amount = DecimalField('Amount of Withdrawl', [validators.DataRequired()])
 
     submit = SubmitField('Submit')
+
+class BalanceForm(FlaskForm):
+    class Meta:
+        csrf = False
+
+        hundreds = IntegerField('Hundreds', [validators.DataRequired()])
+        fifties = IntegerField('Fifties', [validators.DataRequired()])
+        twenties = IntegerField('Twenties', [validators.DataRequired()])
+        tens = IntegerField('Tens', [validators.DataRequired()])
+        fives = IntegerField('Fives', [validators.DataRequired()])
+        twos = IntegerField('Twos', [validators.DataRequired()])
+        ones = IntegerField('Ones', [validators.DataRequired()])
+        dollarc = IntegerField('Dollar Coins', [validators.DataRequired()])
+        halves = IntegerField('Halves', [validators.DataRequired()])
+        quarters = IntegerField('Quarters', [validators.DataRequired()])
+        dimes = IntegerField('Dimes', [validators.DataRequired()])
+        nickels = IntegerField('Nickels', [validators.DataRequired()])
+        pennies = IntegerField('Pennies', [validators.DataRequired()])

@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import *
 import random
 import re
-from forms import NewCustomerForm, NewAccountForm, DepositForm, WithdrawlForm, InquiryForm, SearchForm, TransferForm
+from forms import NewCustomerForm, NewAccountForm, DepositForm, WithdrawlForm, InquiryForm, SearchForm, TransferForm, CustomerForm
 import locale
 
 
@@ -45,7 +45,7 @@ class Teller(db.Model):
         quarters = 0
         dimes = 0
         nickels = 0
-        penies = 0
+        pennies = 0
 
         while done == False:
     
@@ -64,6 +64,8 @@ class Teller(db.Model):
             new_balance = current_balance + total
             current_account.balance = new_balance
    '''
+
+
 accounts_owners = db.Table('accounts_owners',
     db.Column('account_id', db.Integer, db.ForeignKey('account.account_id')),
     db.Column('customer_id', db.Integer, db.ForeignKey('customer.customer_id'))
@@ -150,6 +152,14 @@ class Account(db.Model):
         formatted_bal = locale.currency(self.bal, grouping=True)
         return formatted_bal
 
+    def add_owner(self, customer):
+        new_owners_accounts = customer.accounts
+        if self in new_owners_accounts:
+            raise 'Account already has that owner'
+        else:
+            customer.accounts.append(self)
+            db.session.commit()
+
     @staticmethod
     def search_account(attr_search, search_param):
         search_return = Account.query.filter_by(attr_search=search_param).all()
@@ -219,7 +229,7 @@ def deposit():
 
         account = Account.query.filter_by(acctn=account_number).first() #retireves account
 
-        if account != None: #If account could be located
+        if account: #If account could be located
 
             amount = form.amount.data
 
@@ -345,25 +355,26 @@ def inquiry():
 
         return render_template('inquiry.html', account_readout=False, customers=customers, account=account, inquiry=True)
 
-    else:
+    elif request.method == 'GET' and not account_id:
         return render_template('inquiry.html', form=form, account_readout=False)
     
     if request.method == 'POST':
 
         if form.validate() == False:
-            return render_template('inquiry.html', form=form, account_readout=False)
+            error = form.error
+            return render_template('inquiry.html', form=form, account_readout=False, error=error)
 
         if form.validate():
             account_number = form.account_number.data
             account = Account.query.filter_by(acctn=account_number).first()  #Add account submited by form to accounts
             if account:
                 customers = account.owners()    #Add customers of selected account to customers
-                
+                return render_template('inquiry.html', inquiry=True, customers=customers, account=account)
             else:
                 error = "Account does not exist"
                 return render_template('inquiry.html', form=form, account_readout=False, error=error)
-    
-            return render_template('inquiry.html', inquiry=True, customers=customers, account=account)
+            
+            
 
 
 @app.route('/balance', methods = ['POST', 'GET'])
@@ -457,7 +468,7 @@ def search():
         if form.search_type.data == 'customer':
             customers = Customer.search_customer(form.attr_type.data, form.search_param.data)
             return render_template('search.html', search_return=True, customers=customers)
-        if form.search_type == 'account':
+        if form.search_type == 'account':   #TODO fix account search functionality
             accounts = Account.search_account(form.attr_type.data, form.search_param.data)
             return render_template('search.html', search_return=True, accounts=accounts)
         
@@ -471,6 +482,32 @@ def customer_inquiry():
     accounts = customer.accounts
 
     return render_template('customer.html', customer=customer, accounts=accounts)
+
+
+
+@app.route('/add_customer', methods=['GET', 'POST'])
+def add_customer():
+    form = CustomerForm()
+
+    if request.method == 'GET':
+        return render_template('add_customer.html', form=form)
+
+    if request.method == 'POST':
+        if form.validate():
+            account_num = form.account.data
+            customer_ssn = form.new_ssn.data
+
+            account = Account.query.filter_by(acctn=account_num).first()
+            customer = Customer.query.filter_by(ssn=customer_ssn).first()
+
+            account.add_owner(customer)
+
+            return render_template('success.html')
+        else: 
+            return render_template('add_customer.html', form=form)
+
+
+
 
 if __name__ == '__main__':
 

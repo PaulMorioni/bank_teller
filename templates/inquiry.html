@@ -2,12 +2,12 @@
 
 {% block content %}
 
+{% if error %}
+<div>{{error}}</div>
+{% endif %}
+
 <div class="form-group">
     {% if form %}
-
-        {% if error %}
-            <div class="error">{{error}}</div> 
-        {% endif %}
                 <form action = "/inquiry" method= POST>
                     <legend>Inquiry</legend>
                     <p class="inquiry">
@@ -28,22 +28,23 @@
 
 
 {% if inquiry %}
-    {% for customer in customers %}
-        <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
-                <th>Name</th>
-                <th>Date of Birth</th>
-                <th>SSN</th>
-            </thead>
+    
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <th>Name</th>
+            <th>Date of Birth</th>
+            <th>SSN</th>
+        </thead>
 
-            <tbody>
-                <tr>
-                    <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
-                    <td>{{customer.dob}}</td>
-                    <td>{{customer.ssn}}</td>
-                </tr>
-            </tbody>
-    {% endfor %}
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
+                <td>{{customer.dob}}</td>
+                <td>{{customer.ssn}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
 
     {% if account %}
             <thead class="thead-dark">
