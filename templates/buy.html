@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if error %}
+<div>{{error}}</div>
+{% endif %}
+
+<div>
+    <form action = "/buy" method= POST>
+        <legend>Deposit</legend>
+        <p>
+            {{ form.buy_from_id.label }}<br>
+            {{ form.buy_from_id }}
+            <br>
+
+            {{ form.amount.label }}<br>
+            {{ form.amount }}
+            <br>
+
+            {{ form.description.label}}<br>
+            {{ form.description}}
+
+            {{ form.submit }}
+            <br>
+        </p>
+    </form>
+</div>
+</html>
+{% endblock %}

@@ -52,35 +52,26 @@ class NumberOfCustomers(Form):
 
     number_of_customers = IntegerField('Number of customers to add to account', [validators.DataRequired(), validators.NumberRange(0,10)])
 
-
+'''
 class TellerBuyForm(FlaskForm):
     class Meta:
         csrf = False
     
     #Set session Teller ID to ID for Teller, This will be the same for all transaction Forms.
-    buy_from_id = IntegerField('Who did you buy from?', [validators.DataRequired(), validators.NumberRange(1,number_of_tellers)]) #TODO make range only allow for teller IDs that exist.
+    buy_from_id = IntegerField('Who did you buy from?', [validators.DataRequired()]) #TODO make range only allow for teller IDs that exist.
     amount = DecimalField('Amount', [validators.DataRequired() ])
     description = StringField('Comments', [validators.DataRequired(), validators.Length(max=100)])
+    submit = SubmitField('Submit')
 
 class TellerSellForm(FlaskForm):
     class Meta:
         csrf = False
     
-    sell_to_id = IntegerField('Who did you sell to?', [validators.DataRequired(), validators.NumberRange(1,number_of_tellers)]) #TODO make range only allow for teller IDs that exist.
+    sell_to_id = IntegerField('Who did you sell to?', [validators.DataRequired()]) #TODO make range only allow for teller IDs that exist.
     amount = DecimalField('Amount', [validators.DataRequired()])
     description = StringField('Comments', [validators.DataRequired(), validators.Length(max=100)])
+    submit = SubmitField('Submit')
 
-class InquiryForm(FlaskForm):
-    class Meta:
-        csrf = False
-    
-    subject_of_search = [('customer','customer'), ('account','account'), ('teller','teller'), ('transaction','transaction')]
-
-    
-
-    search_type = RadioField('Search Type', validators=[validators.DataRequired()], choices=subject_of_search)
-    #attribute_of_search = RadioField('Search by', validators=[validators.DataRequired()], choices=) #TODO Will need to bea dynamic form to allow for the radio field to give the proper option when a subjec of search is selected
-'''
 class DepositForm(FlaskForm):
     class Meta:
         csrf = False
