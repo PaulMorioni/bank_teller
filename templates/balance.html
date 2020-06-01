@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<table class="table table-bordered table-striped">
+
+    <tbody>
+        <tr>
+            <th>{{ form.hundreds.label }}</th>
+            <td>{{ form.hundreds }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.fifties.label }}</th>
+            <td>{{ form.fifties }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.twenties.label }}</th>
+            <td>{{ form.twenties }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.tens.label }}</th>
+            <td>{{ form.tens }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.fives.label }}</th>
+            <td>{{ form.fives }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.twos.label }}</th>
+            <td>{{ form.twos }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.ones.label }}</th>
+            <td>{{ form.ones }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.dollarc.label }}</th>
+            <td>{{ form.dollarc }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.halves.label }}</th>
+            <td>{{ form.halves }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.quarters.label }}</th>
+            <td>{{ form.quarters }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.dimes.label }}</th>
+            <td>{{ form.dimes }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.nickels.label }}</th>
+            <td>{{ form.nickels }}</td>
+        </tr>
+        <tr>
+            <th>{{ form.pennies.label }}</th>
+            <td>{{ form.pennies }}</td>
+        </tr>
+    </tbody>
+
+    </table>
+
+    {{ form.submit }}
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+

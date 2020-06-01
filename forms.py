@@ -12,6 +12,7 @@ class TellerLoginForm(FlaskForm):
         csrf = False
     
     teller_id = IntegerField('Teller ID')
+    submit = SubmitField('Submit')
 
 
 
@@ -120,7 +121,7 @@ class TransferForm(FlaskForm):
     debit_account = IntegerField('Debit Account Number', [validators.DataRequired()])
     credit_account = IntegerField('Credit Account Number', [validators.DataRequired()])
 
-    amount = DecimalField('Amount of Withdrawl', [validators.DataRequired()])
+    amount = DecimalField('Amount of Transfer', [validators.DataRequired()])
 
     submit = SubmitField('Submit')
 
@@ -128,16 +129,18 @@ class BalanceForm(FlaskForm):
     class Meta:
         csrf = False
 
-        hundreds = IntegerField('Hundreds', [validators.DataRequired()])
-        fifties = IntegerField('Fifties', [validators.DataRequired()])
-        twenties = IntegerField('Twenties', [validators.DataRequired()])
-        tens = IntegerField('Tens', [validators.DataRequired()])
-        fives = IntegerField('Fives', [validators.DataRequired()])
-        twos = IntegerField('Twos', [validators.DataRequired()])
-        ones = IntegerField('Ones', [validators.DataRequired()])
-        dollarc = IntegerField('Dollar Coins', [validators.DataRequired()])
-        halves = IntegerField('Halves', [validators.DataRequired()])
-        quarters = IntegerField('Quarters', [validators.DataRequired()])
-        dimes = IntegerField('Dimes', [validators.DataRequired()])
-        nickels = IntegerField('Nickels', [validators.DataRequired()])
-        pennies = IntegerField('Pennies', [validators.DataRequired()])
+    hundreds = IntegerField('Hundreds', [validators.DataRequired()])
+    fifties = IntegerField('Fifties', [validators.DataRequired()])
+    twenties = IntegerField('Twenties', [validators.DataRequired()])
+    tens = IntegerField('Tens', [validators.DataRequired()])
+    fives = IntegerField('Fives', [validators.DataRequired()])
+    twos = IntegerField('Twos', [validators.DataRequired()])
+    ones = IntegerField('Ones', [validators.DataRequired()])
+    dollarc = IntegerField('Dollar Coins', [validators.DataRequired()])
+    halves = IntegerField('Halves', [validators.DataRequired()])
+    quarters = IntegerField('Quarters', [validators.DataRequired()])
+    dimes = IntegerField('Dimes', [validators.DataRequired()])
+    nickels = IntegerField('Nickels', [validators.DataRequired()])
+    pennies = IntegerField('Pennies', [validators.DataRequired()])
+
+

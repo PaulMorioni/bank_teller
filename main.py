@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import *
 import random
 import re
-from forms import NewCustomerForm, NewAccountForm, DepositForm, WithdrawlForm, InquiryForm, SearchForm, TransferForm, CustomerForm
+from forms import *
 import locale
 
 
@@ -26,45 +26,17 @@ class Teller(db.Model):
     cashbal = db.Column(db.Numeric(18,4))
     cashdenom = db.Column(db.String(20))
 
-    def __init__(self, cashbal, cashdenom):
+    def __init__(self, teller_id):
         self.cashbal = 0
-        self.cashdenom = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-
-'''
-    def balance():
-        done = False
-        hundreds = 0 # pull input from UI #TODO
-        fifties = 0
-        twenties = 0
-        tens = 0
-        fives = 0
-        twos = 0
-        ones = 0
-        dollarc = 0
-        halves = 0
-        quarters = 0
-        dimes = 0
-        nickels = 0
-        pennies = 0
-
-        while done == False:
+        self.cashdenom = '0,0,0,0,0,0,0,0,0,0,0,0,0'
     
 
-    def changecash(trancode, amount):  #TODO
+    def changecash(self, trancode, amount):  #TODO
         cur_cash = self.cashbal
 
-    Any transaction types should actually be held in this module and should only be tied to the account module with
-    With the tran attribute of account number
+    '''Any transaction types should actually be held in this module and should only be tied to the account module with
+    With the tran attribute of account number'''
     
-    @staticmethod
-    def deposit(account_number, check_amount, cash_amount, cashback, total):
-        if total == check_amount + cash_amount - cashback:
-            current_account = Account.search_account(account_number, account_number, all_accounts) #TODO does all_accounts work this way or will i need to change the startup() function
-            current_balance = current_account.balance
-            new_balance = current_balance + total
-            current_account.balance = new_balance
-   '''
-
 
 accounts_owners = db.Table('accounts_owners',
     db.Column('account_id', db.Integer, db.ForeignKey('account.account_id')),
@@ -108,7 +80,7 @@ class Customer(db.Model):
 
         return search_return
 
-class Account(db.Model):
+class Account(db.Model):    #TODO add function to calculate running balance with transactions for inquiry screen
     account_id = db.Column(db.Integer, primary_key=True)
     acctn = db.Column(db.Integer, unique=True)
     primary_ssn = db.Column(db.Integer)
@@ -194,25 +166,34 @@ class Trans(db.Model):
         return fmt_amt
 
 
+@app.before_request
+def require_login():
+    allowed_routes = ['teller_login', 'home']
+    if request.endpoint not in allowed_routes and 'teller_id' not in session:
+        return redirect('/teller_login')
 
 
-@app.route('/', methods = ['POST', 'GET'])
-def base():
-    title = "Test 1"
-    account_readout = True
+@app.route('/teller_login', methods = ['POST', 'GET'])
+def teller_login():
+    teller_id = ''
+    form = TellerLoginForm()
+    if request.method == 'GET':
 
-    accounts = Account.query.all()
-    customers = Customer.query.all()
+        return render_template('teller_login.html', form=form)
 
-
-    return render_template("base.html", title=title, account_readout=account_readout, accounts=accounts, customers=customers)
+    if request.method == 'POST':
+        teller_id = form.teller_id.data
+        teller = Teller.query.filter_by(teller_id=teller_id).first()
+        if teller:
+            session['teller_id'] = teller_id
+            flash('Logged In')
+            return redirect('/home')
 
 
 @app.route('/home', methods = ['POST', 'GET'])
 def home():
     
-
-    return render_template()
+    return render_template('home.html')
 
 
 @app.route('/deposit', methods = ['POST', 'GET'])
@@ -302,8 +283,8 @@ def transfer():
             credit_account_num = form.credit_account.data
             amount = form.amount.data
 
-            debit_account =  Account.query.filter_by(acctn=debit_account_num).first()   #Retrieves accounts
-            credit_account = Account.query.filter_by(acctn=credit_account_num).first()
+            debit_account =  Account.query.filter_by(acctn=credit_account_num).first()   #Retrieves accounts
+            credit_account = Account.query.filter_by(acctn=debit_account_num).first()
 
             if credit_account and debit_account:
 
@@ -345,7 +326,7 @@ def transfer():
 
 
 @app.route('/inquiry', methods = ['POST', 'GET'])
-def inquiry():
+def inquiry():  #TODO add running balance and color coding to debit credit
     form = InquiryForm()
     account_id = request.args.get('acct')
 
@@ -379,9 +360,10 @@ def inquiry():
 
 @app.route('/balance', methods = ['POST', 'GET'])
 def balance():
-
-
-    return render_template()
+    form = BalanceForm()
+    if request.method == 'GET':
+        #TODO add teller functionality so previous balancing form is set to default
+        return render_template('balance.html', form=form)
 
 
 @app.route('/buy', methods = ['POST', 'GET'])
