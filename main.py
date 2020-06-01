@@ -17,6 +17,9 @@ db = SQLAlchemy(app)
 app.secret_key = 'y337ksdfwh34132w'
 locale.setlocale( locale.LC_ALL,'English_United States.1252')
 
+debit_trancodes = [50, 500, 150]
+credit_trancodes = [13, 113, 400]
+
 
 #TODO Add a teller class to do teller functions through?? What should be done with buy/sell cash if not. (I.e. only effects Vault(maybe) and teller GL)
 
@@ -33,10 +36,29 @@ class Teller(db.Model):
 
     def changecash(self, trancode, amount):  #TODO
         cur_cash = self.cashbal
+        if trancode in credit_trancodes: #credit relative to perspective account will be opposite of teller GL (i.e. credit trancodes will debit teller)
+            self.cashbal = cur_cash - amount
+        elif trancode in debit_trancodes: #opposite of above comment
+            self.cashbal = cur_cash + amount
+        
+        db.session.commit()
 
-    '''Any transaction types should actually be held in this module and should only be tied to the account module with
-    With the tran attribute of account number'''
-    
+
+    def buy(self, amount):
+        cur_cash = self.cashbal
+        self.cashbal = cur_cash + amount
+        db.session.commit()
+
+
+    def sell(self, amount):
+        cur_cash = self.cashbal
+        self.cashbal = cur_cash - amount
+        db.session.commit()
+
+    def parse_denom(self):
+        denom_list = self.cashdenom.split(",")
+        return denom_list
+
 
 accounts_owners = db.Table('accounts_owners',
     db.Column('account_id', db.Integer, db.ForeignKey('account.account_id')),
@@ -99,12 +121,12 @@ class Account(db.Model):    #TODO add function to calculate running balance with
     def calc_balance(self, trancode, amount):
     
         current_balance = self.bal
-        if trancode in (13, 113, 400):
+        if trancode in credit_trancodes:
             new_balance = current_balance + amount
             self.bal = new_balance
             db.session.commit()
         
-        elif trancode in (50, 500, 150):
+        elif trancode in debit_trancodes:
             new_balance = current_balance - amount
             self.bal = new_balance
             db.session.commit()
@@ -362,22 +384,57 @@ def inquiry():  #TODO add running balance and color coding to debit credit
 def balance():
     form = BalanceForm()
     if request.method == 'GET':
-        #TODO add teller functionality so previous balancing form is set to default
-        return render_template('balance.html', form=form)
+        teller_id = session['teller_id']
+        teller = Teller.query.filter_by(teller_id=teller_id).first()
+
+        if teller.cashdenom == '0,0,0,0,0,0,0,0,0,0,0,0,0':
+            return render_template('balance.html', form=form, teller=teller)
+
+        else:
+            list_of_denom = teller.parse_denom()
+            #convert to touples? so that we can loop over default values of form
+
+        
 
 
 @app.route('/buy', methods = ['POST', 'GET'])
 def buy():
 
+    form = TellerBuyForm()
 
-    return render_template()
+    if request.method == 'GET':
+
+        return render_template('buy.html', form=form)
+
+    if request.method == 'POST':
+        current_teller_id  = session['teller_id']
+        current_teller = Teller.query.filter_by(teller_id=current_teller_id).first()
+            #buy_from_id = form.buy_from_id.data #does not effect cash bal of other teller, other teller would perform debit transaction(sell function)
+            #description and buy from teller would be added after teller cash log is added to Database to track buy and sells on a GL. General Ledger functionality will be added at a later date.
+        amount = form.amount.data
+        current_teller.buy(amount)
+
+        return redirect('/home')
 
 
 @app.route('/sell', methods = ['POST', 'GET'])
 def sell():
 
+    form = TellerSellForm()
 
-    return render_template()
+    if request.method == 'GET':
+
+        return render_template('sell.html', form=form)
+
+    if request.method == 'POST':
+        current_teller_id  = session['teller_id']
+        current_teller = Teller.query.filter_by(teller_id=current_teller_id).first()
+            #sell_to_id = form.sell_to_id.data #does not effect cash bal of other teller, other teller would perform debit transaction(sell function)
+            #description and buy from teller would be added after teller cash log is added to Database to track buy and sells on a GL. General Ledger functionality will be added at a later date.
+        amount = form.amount.data
+        current_teller.sell(amount)
+
+        return redirect('/home')
 
 @app.route('/new_account', methods = ['POST', 'GET'])
 def make_account():
