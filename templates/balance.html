@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<form action="/balance" method="POST">
 <table class="table table-bordered table-striped">
 
     <tbody>
@@ -61,9 +61,9 @@
 
     </table>
 
-    {{ form.submit }}
+    {{ form.submit }}   <p>Teller Cash Balance: {{teller.rounded_amount()}}</p>
 
-
+</form>
 {% endblock %}
 
 

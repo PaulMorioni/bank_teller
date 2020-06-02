@@ -5,7 +5,7 @@ import random
 import re
 from forms import *
 import locale
-
+from decimal import *
 
 
 __name__ = '__main__'
@@ -27,7 +27,7 @@ class Teller(db.Model):
 
     teller_id = db.Column(db.Integer, primary_key=True)
     cashbal = db.Column(db.Numeric(18,4))
-    cashdenom = db.Column(db.String(20))
+    cashdenom = db.Column(db.String(200))
 
     def __init__(self, teller_id):
         self.cashbal = 0
@@ -44,6 +44,11 @@ class Teller(db.Model):
         db.session.commit()
 
 
+    def rounded_amount(self):
+        rounded_amount = locale.currency(self.cashbal, grouping=True)
+        return rounded_amount
+
+
     def buy(self, amount):
         cur_cash = self.cashbal
         self.cashbal = cur_cash + amount
@@ -55,9 +60,21 @@ class Teller(db.Model):
         self.cashbal = cur_cash - amount
         db.session.commit()
 
+
     def parse_denom(self):
         denom_list = self.cashdenom.split(",")
         return denom_list
+
+
+    def balance(self, list_of_denom):
+        str_denom = []
+        for denom in list_of_denom:
+            str_denom.append(str(denom))    #turns list of integers into string
+        
+        new_denom = ','.join(str_denom) #concatenates list of string to be DB friendly
+        self.cashdenom = new_denom
+        db.session.commit()
+
 
 
 accounts_owners = db.Table('accounts_owners',
@@ -175,7 +192,7 @@ class Trans(db.Model):
         self.trancode = trancode
 
     def rounded_amount(self):
-        rounded_amount = round(self.amount, 2)
+        rounded_amount = locale.currency(self.amount, grouping=True)
         return rounded_amount
 
     def time_datetime(self):
@@ -377,24 +394,40 @@ def inquiry():  #TODO add running balance and color coding to debit credit
                 error = "Account does not exist"
                 return render_template('inquiry.html', form=form, account_readout=False, error=error)
             
-            
-
+            #TODO
+            #TODO Fix issue with amount storage. change to use Decimal Class for most amounts starting with float in the folowing controller
 
 @app.route('/balance', methods = ['POST', 'GET'])
 def balance():
-    form = BalanceForm()
+    form = BalanceForm()    #a list of form objects that can be looped over to either effect data with iterated string, or fill in data of prior balance   
+    form_elements = [form.hundreds, form.fifties, form.twenties, form.tens, form.fives, form.twos, form.ones, form.dollarc, form.halves, form.quarters, form.dimes, form.nickels, form.pennies]
+    new_denom = []
+
+    teller_id = session['teller_id']
+    teller = Teller.query.filter_by(teller_id=teller_id).first()
+
     if request.method == 'GET':
-        teller_id = session['teller_id']
-        teller = Teller.query.filter_by(teller_id=teller_id).first()
 
         if teller.cashdenom == '0,0,0,0,0,0,0,0,0,0,0,0,0':
             return render_template('balance.html', form=form, teller=teller)
 
         else:
             list_of_denom = teller.parse_denom()
-            #convert to touples? so that we can loop over default values of form
+            for i in range(len(form_elements)): # elements and cashdenom list is the same length, so i is used as index for both
+                current_element = form_elements[i]  #selects form element of index 
+                current_denom = list_of_denom[i]    #selects case value of coresponding denomination
+                current_element.data = float(current_denom)    #sets previously entered denomination to form element value so prior balance history isn't lost
 
+            return render_template('balance.html', form=form, teller=teller)
+
+    if request.method == 'POST':
+        for element in form_elements:   
+            new_denom.append(element.data)  #retrieves value of each form element in order
+        teller.balance(new_denom)
+
+        return render_template('Success.html')
         
+
 
 
 @app.route('/buy', methods = ['POST', 'GET'])

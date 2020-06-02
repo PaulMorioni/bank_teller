@@ -60,7 +60,7 @@ class TellerBuyForm(FlaskForm):
     #Set session Teller ID to ID for Teller, This will be the same for all transaction Forms.
     buy_from_id = IntegerField('Who did you buy from?', [validators.DataRequired()]) #TODO make range only allow for teller IDs that exist.
     amount = DecimalField('Amount', [validators.DataRequired() ])
-    description = StringField('Comments', [validators.DataRequired(), validators.Length(max=100)])
+    description = StringField('Comments', [validators.Length(max=100)])
     submit = SubmitField('Submit')
 
 class TellerSellForm(FlaskForm):
@@ -69,7 +69,7 @@ class TellerSellForm(FlaskForm):
     
     sell_to_id = IntegerField('Who did you sell to?', [validators.DataRequired()]) #TODO make range only allow for teller IDs that exist.
     amount = DecimalField('Amount', [validators.DataRequired()])
-    description = StringField('Comments', [validators.DataRequired(), validators.Length(max=100)])
+    description = StringField('Comments', [validators.Length(max=100)])
     submit = SubmitField('Submit')
 
 class DepositForm(FlaskForm):
@@ -128,10 +128,12 @@ class BalanceForm(FlaskForm):
     twos = IntegerField('Twos', [validators.DataRequired()])
     ones = IntegerField('Ones', [validators.DataRequired()])
     dollarc = IntegerField('Dollar Coins', [validators.DataRequired()])
-    halves = IntegerField('Halves', [validators.DataRequired()])
-    quarters = IntegerField('Quarters', [validators.DataRequired()])
-    dimes = IntegerField('Dimes', [validators.DataRequired()])
-    nickels = IntegerField('Nickels', [validators.DataRequired()])
-    pennies = IntegerField('Pennies', [validators.DataRequired()])
+    halves = DecimalField('Halves', [validators.DataRequired()])
+    quarters = DecimalField('Quarters', [validators.DataRequired()])
+    dimes = DecimalField('Dimes', [validators.DataRequired()])
+    nickels = DecimalField('Nickels', [validators.DataRequired()])
+    pennies = DecimalField('Pennies', [validators.DataRequired()])
+
+    submit = SubmitField('Submit')
 
 
