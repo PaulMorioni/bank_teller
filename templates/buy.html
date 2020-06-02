@@ -2,13 +2,10 @@
 
 {% block content %}
 
-{% if error %}
-<div>{{error}}</div>
-{% endif %}
 
 <div>
     <form action = "/buy" method= POST>
-        <legend>Deposit</legend>
+        <legend>Buy</legend>
         <p>
             {{ form.buy_from_id.label }}<br>
             {{ form.buy_from_id }}

@@ -20,18 +20,17 @@ locale.setlocale( locale.LC_ALL,'English_United States.1252')
 debit_trancodes = [50, 500, 150]
 credit_trancodes = [13, 113, 400]
 
-
 #TODO Add a teller class to do teller functions through?? What should be done with buy/sell cash if not. (I.e. only effects Vault(maybe) and teller GL)
 
 class Teller(db.Model):
 
     teller_id = db.Column(db.Integer, primary_key=True)
     cashbal = db.Column(db.Numeric(18,4))
-    cashdenom = db.Column(db.String(200))
+    cashdenom = db.Column(db.String(400))
 
     def __init__(self, teller_id):
         self.cashbal = 0
-        self.cashdenom = '0,0,0,0,0,0,0,0,0,0,0,0,0'
+        self.cashdenom = '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
     
 
     def changecash(self, trancode, amount):  #TODO
@@ -214,6 +213,7 @@ def require_login():
 
 @app.route('/teller_login', methods = ['POST', 'GET'])
 def teller_login():
+    errors = []
     teller_id = ''
     form = TellerLoginForm()
     if request.method == 'GET':
@@ -227,6 +227,11 @@ def teller_login():
             session['teller_id'] = teller_id
             flash('Logged In')
             return redirect('/home')
+        else:
+            error = 'Teller ID Not Found'
+            errors.append(error)
+            return render_template('teller_login.html', form=form, errors=errors)
+
 
 
 @app.route('/home', methods = ['POST', 'GET'])
@@ -237,6 +242,7 @@ def home():
 
 @app.route('/deposit', methods = ['POST', 'GET'])
 def deposit():
+    errors = []
     form = DepositForm()
     trancode = 13
 
@@ -269,7 +275,8 @@ def deposit():
     
         else:
             error = "Account Not Found"
-            return render_template('deposit.html', account_readout = False, form=form, error=error)
+            errors.append(error)
+            return render_template('deposit.html', account_readout = False, form=form, errors=errors)
 
         
 
@@ -308,6 +315,7 @@ def withdrawl():
 
 @app.route('/transfer', methods = ['POST', 'GET'])
 def transfer():
+    errors = []
     form = TransferForm()
     debit_trancode = 50
     credit_trancode = 13
@@ -356,7 +364,8 @@ def transfer():
                     error = 'Debit Account not found'
                 elif not debit_account or credit_account:
                     error = 'Accounts not found'
-                return render_template('transfer.html', form=form, error=error)
+                errors.append(error)
+                return render_template('transfer.html', form=form, errors=errors)
 
         else:
             return render_template('transfer.html', form=form)
@@ -368,6 +377,7 @@ def transfer():
 def inquiry():  #TODO add running balance and color coding to debit credit
     form = InquiryForm()
     account_id = request.args.get('acct')
+    errors = []
 
     if request.method == 'GET' and account_id: #determines if link from search page or if navigation to form
         account = Account.query.filter_by(account_id=account_id).first()
@@ -381,8 +391,8 @@ def inquiry():  #TODO add running balance and color coding to debit credit
     if request.method == 'POST':
 
         if form.validate() == False:
-            error = form.error
-            return render_template('inquiry.html', form=form, account_readout=False, error=error)
+            errors.append(form.error)
+            return render_template('inquiry.html', form=form, account_readout=False, errors=errors)
 
         if form.validate():
             account_number = form.account_number.data
@@ -392,15 +402,19 @@ def inquiry():  #TODO add running balance and color coding to debit credit
                 return render_template('inquiry.html', inquiry=True, customers=customers, account=account)
             else:
                 error = "Account does not exist"
-                return render_template('inquiry.html', form=form, account_readout=False, error=error)
+                errors.append(error)
+                return render_template('inquiry.html', form=form, account_readout=False, errors=errors)
             
-            #TODO
-            #TODO Fix issue with amount storage. change to use Decimal Class for most amounts starting with float in the folowing controller
+             
 
 @app.route('/balance', methods = ['POST', 'GET'])
 def balance():
     form = BalanceForm()    #a list of form objects that can be looped over to either effect data with iterated string, or fill in data of prior balance   
-    form_elements = [form.hundreds, form.fifties, form.twenties, form.tens, form.fives, form.twos, form.ones, form.dollarc, form.halves, form.quarters, form.dimes, form.nickels, form.pennies]
+    
+    form_elements = [form.hundreds, form.fifties, form.twenties, form.tens, form.fives, form.twos, form.ones, form.dollarc, form.halves, form.quarters, form.dimes, form.nickels, form.pennies,
+    form.hundreds_bundles, form.fifties_bundles, form.twenties_bundles, form.tens_bundles, form.fives_bundles, form.twos_bundles,
+    form.ones_bundles, form.dollarc_rolls, form.halves_rolls, form.quarters_rolls, form.dimes_rolls, form.nickels_rolls, form.pennies_rolls]
+    
     new_denom = []
 
     teller_id = session['teller_id']
@@ -408,7 +422,7 @@ def balance():
 
     if request.method == 'GET':
 
-        if teller.cashdenom == '0,0,0,0,0,0,0,0,0,0,0,0,0':
+        if teller.cashdenom == '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0':
             return render_template('balance.html', form=form, teller=teller)
 
         else:
@@ -416,7 +430,7 @@ def balance():
             for i in range(len(form_elements)): # elements and cashdenom list is the same length, so i is used as index for both
                 current_element = form_elements[i]  #selects form element of index 
                 current_denom = list_of_denom[i]    #selects case value of coresponding denomination
-                current_element.data = float(current_denom)    #sets previously entered denomination to form element value so prior balance history isn't lost
+                current_element.data = Decimal(current_denom)    #sets previously entered denomination to form element value so prior balance history isn't lost
 
             return render_template('balance.html', form=form, teller=teller)
 
@@ -497,7 +511,8 @@ def make_account():
                 return render_template('success.html', title="Success")
             else:
                 error = "Customer Does not Exist"
-                return render_template('new_account.html', error=error, account_readout=False, form=form)
+                errors.append()
+                return render_template('new_account.html', errors=errors, account_readout=False, form=form)
             
 
     if request.method == 'GET':
