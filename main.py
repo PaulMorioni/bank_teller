@@ -108,13 +108,11 @@ class Customer(db.Model):
         return formated_ssn
 
     @staticmethod
-    def search_customer(attr_search, search_param): #TODO determine best way to do fuzzy search
+    def search_customer(attr_search, search_param):
         if attr_search == 'name':
-            search_return = Customer.query.filter(Customer.name.like(search_param)).all()
-        elif attr_search == 'dob':
-            search_return = Customer.query.filter_by(dob=search_param).all()
+            search_return = Customer.query.filter(Customer.name.contains(search_param)).all()
         elif attr_search == 'ssn':
-            search_return = Customer.query.filter_by(ssn=search_param).all()
+            search_return = Customer.query.filter(Customer.ssn.contains(search_param)).all()
 
         return search_return
 
@@ -170,10 +168,24 @@ class Account(db.Model):    #TODO add function to calculate running balance with
             customer.accounts.append(self)
             db.session.commit()
 
+    def primary_owner(self):
+        owners = self.owners()
+        primary_owner = owners[0]
+        return primary_owner
+
     @staticmethod
     def search_account(attr_search, search_param):
-        search_return = Account.query.filter_by(attr_search=search_param).all()
-        return search_return
+        if attr_search == 'account_number':
+            search_return = Account.query.filter(Account.acctn.contains(search_param)).all()
+
+        elif attr_search == 'date_opened':
+            search_return = Account.query.filter(Account.date_opened.contains(search_param)).all()
+
+        elif attr_search == 'product':
+            search_return = Account.query.filter(Account.prod.contains(search_param)).all()
+
+        if search_return:
+            return search_return
 
 
 class Trans(db.Model):
@@ -511,7 +523,7 @@ def make_account():
                 return render_template('success.html', title="Success")
             else:
                 error = "Customer Does not Exist"
-                errors.append()
+                errors.append(error)
                 return render_template('new_account.html', errors=errors, account_readout=False, form=form)
             
 
@@ -544,8 +556,11 @@ def make_customer():
 @app.route('/search', methods = ['POST', 'GET'])    #TODO add fuzzy search functionality.propbably with postgresql
 def search():
     form = SearchForm()
-    form.attr_type.choices = [('name', 'Name'), ('dob', 'Date of Birth'),('ssn', 'SSN')]
-    
+    customer_attr_types = [('name', 'Name'), ('ssn', 'SSN')]
+    account_attr_types = [('account_number', 'Account Number'), ('product', 'Product'), ('date_opened', 'Date Opened')]
+
+    form.attr_type.choices = account_attr_types
+
     if request.method == 'GET':
         
         return render_template('search.html', form=form)
@@ -555,7 +570,8 @@ def search():
         if form.search_type.data == 'customer':
             customers = Customer.search_customer(form.attr_type.data, form.search_param.data)
             return render_template('search.html', search_return=True, customers=customers)
-        if form.search_type == 'account':   #TODO fix account search functionality
+
+        if form.search_type.data == 'account':   #TODO fix account search functionality
             accounts = Account.search_account(form.attr_type.data, form.search_param.data)
             return render_template('search.html', search_return=True, accounts=accounts)
         

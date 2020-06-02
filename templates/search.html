@@ -21,40 +21,46 @@
 
 {% if search_return %}
 
-{% for customer in customers %}
-<table class="table table-bordered table-striped">
-    <thead class="thead-dark">
-        <th>Name</th>
-        <th>Date of Birth</th>
-        <th>SSN</th>
-    </thead>
+    {% if customers %}
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <th>Name</th>
+                <th>Date of Birth</th>
+                <th>SSN</th>
+            </thead>
 
-    <tbody>
-        <tr>
-            <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
-            <td>{{customer.dob}}</td>
-            <td>{{customer.ssn}}</td>
-        </tr>
-    </tbody>
-</table>
-{% endfor %}
+            <tbody>
+                {% for customer in customers %}
+                    <tr>
+                        <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
+                        <td>{{customer.dob}}</td>
+                        <td>{{customer.ssn}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 
     {% if accounts %}
-        <table>
+        <table class="table table-bordered table-striped">
             <thead class="thead-dark">
                 <th>Account Number</th>
                 <th>Balance</th>
                 <th>Type</th>
+                <th>Owner</th>
             </thead>
-            {% for account in accounts %}
+
             <tbody>
-                <tr>
-                    <td><a href="inquiry?acct={{account.account_id}}">{{account.acctn}}</a></td>
-                    <td>{{account.formatted_balance()}}</td>
-                    <td>{{account.prod}}</td>
-                </tr>
+                {% for account in accounts %}
+                
+                    <tr>
+                        <td><a href="inquiry?acct={{account.account_id}}">{{account.acctn}}</a></td>
+                        <td>{{account.formatted_balance()}}</td>
+                        <td>{{account.prod}}</td>
+                        <td>{{account.primary_owner().name}}</td>
+                    </tr>
+                {%endfor%}
             </tbody>
-            {%endfor%}
         </table>
     {%endif%}
     
