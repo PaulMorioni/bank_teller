@@ -20,20 +20,18 @@ locale.setlocale( locale.LC_ALL,'English_United States.1252')
 debit_trancodes = [50, 500, 150]
 credit_trancodes = [13, 113, 400]
 
-#TODO Add a teller class to do teller functions through?? What should be done with buy/sell cash if not. (I.e. only effects Vault(maybe) and teller GL)
-
 class Teller(db.Model):
 
     teller_id = db.Column(db.Integer, primary_key=True)
     cashbal = db.Column(db.Numeric(18,4))
     cashdenom = db.Column(db.String(400))
+    #transactions = db.relationship('Trans', backref='teller', lazy='dynamic')
 
     def __init__(self, teller_id):
         self.cashbal = 0
         self.cashdenom = '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
     
-
-    def changecash(self, trancode, amount):  #TODO
+    def changecash(self, trancode, amount):
         cur_cash = self.cashbal
         if trancode in credit_trancodes: #credit relative to perspective account will be opposite of teller GL (i.e. credit trancodes will debit teller)
             self.cashbal = cur_cash - amount
@@ -42,28 +40,23 @@ class Teller(db.Model):
         
         db.session.commit()
 
-
     def rounded_amount(self):
         rounded_amount = locale.currency(self.cashbal, grouping=True)
         return rounded_amount
-
 
     def buy(self, amount):
         cur_cash = self.cashbal
         self.cashbal = cur_cash + amount
         db.session.commit()
 
-
     def sell(self, amount):
         cur_cash = self.cashbal
         self.cashbal = cur_cash - amount
         db.session.commit()
 
-
     def parse_denom(self):
         denom_list = self.cashdenom.split(",")
         return denom_list
-
 
     def balance(self, list_of_denom):
         str_denom = []
@@ -80,6 +73,7 @@ accounts_owners = db.Table('accounts_owners',
     db.Column('account_id', db.Integer, db.ForeignKey('account.account_id')),
     db.Column('customer_id', db.Integer, db.ForeignKey('customer.customer_id'))
 )  
+
 
 class Customer(db.Model):
     customer_id = db.Column(db.Integer, primary_key=True)
@@ -195,13 +189,15 @@ class Trans(db.Model):
     description = db.Column(db.String(100))
     trancode = db.Column(db.Integer)
     account_id = db.Column(db.Integer, db.ForeignKey('account.account_id'))
+    #teller_id = db.Column(db.Integer, db.ForeignKey('teller.teller_id'))    
 
-    def __init__(self, tran_time, amount, description, trancode):
+    def __init__(self, tran_time, amount, description, trancode, teller_id = None):
         self.time = tran_time
         self.amount = amount
         self.description = description
         self.trancode = trancode
-
+        self.teller_id = teller_id
+        
     def rounded_amount(self):
         rounded_amount = locale.currency(self.amount, grouping=True)
         return rounded_amount
@@ -214,6 +210,15 @@ class Trans(db.Model):
     def formatted_amount(self):
         fmt_amt = locale.currency(self.amount, grouping=True)
         return fmt_amt
+
+    def set_teller_id(self, teller_id):
+        self.teller_id = teller_id
+
+    def isDebit(self):  #Determines debit relative to account_id
+        if self.trancode in debit_trancodes:
+            return True
+        else:
+            return False
 
 
 @app.before_request
@@ -243,7 +248,6 @@ def teller_login():
             error = 'Teller ID Not Found'
             errors.append(error)
             return render_template('teller_login.html', form=form, errors=errors)
-
 
 
 @app.route('/home', methods = ['POST', 'GET'])
@@ -291,11 +295,10 @@ def deposit():
             return render_template('deposit.html', account_readout = False, form=form, errors=errors)
 
         
-
-
 @app.route('/withdrawl', methods = ['POST', 'GET'])
 def withdrawl():
 
+    errors = []
     form = WithdrawlForm()
     trancode = 50
 
@@ -303,26 +306,32 @@ def withdrawl():
         
         return render_template('withdrawl.html', account_readout = False, form=form)
 
-    else:   #TODO add catch for account that couldnt be found
+    else:
         account_number = form.account.data
 
         account = Account.query.filter_by(acctn=account_number).first() # finds account
 
-        amount = form.amount.data
+        if account:
 
-        desc = 'Withdrawl with Teller'
-        tran_time = datetime.now()
-        str_tran_time = tran_time.strftime('%x , %X')
+            amount = form.amount.data
 
-        new_withdrawl = Trans(str_tran_time, amount, desc, trancode)    # makes new transaction
+            desc = 'Withdrawl with Teller'
+            tran_time = datetime.now()
+            str_tran_time = tran_time.strftime('%x , %X')
 
-        account.transactions.append(new_withdrawl)  # adds transaction to account
+            new_withdrawl = Trans(str_tran_time, amount, desc, trancode)    # makes new transaction
 
-        db.session.add(new_withdrawl)
-        account.calc_balance(trancode, amount)  #calculates balance of account
-        db.session.commit()
+            account.transactions.append(new_withdrawl)  # adds transaction to account
 
-        return render_template('success.html' )
+            db.session.add(new_withdrawl)
+            account.calc_balance(trancode, amount)  #calculates balance of account
+            db.session.commit()
+
+            return render_template('success.html' )
+
+        else:
+            errors.append('Account Not Found')
+            return render_template('withdrawl.html', account_readout = False, form=form, errors=errors)
 
 
 @app.route('/transfer', methods = ['POST', 'GET'])
@@ -383,10 +392,8 @@ def transfer():
             return render_template('transfer.html', form=form)
     
     
-
-
 @app.route('/inquiry', methods = ['POST', 'GET'])
-def inquiry():  #TODO add running balance and color coding to debit credit
+def inquiry():  #TODO add running balance 
     form = InquiryForm()
     account_id = request.args.get('acct')
     errors = []
@@ -418,7 +425,6 @@ def inquiry():  #TODO add running balance and color coding to debit credit
                 return render_template('inquiry.html', form=form, account_readout=False, errors=errors)
             
              
-
 @app.route('/balance', methods = ['POST', 'GET'])
 def balance():
     form = BalanceForm()    #a list of form objects that can be looped over to either effect data with iterated string, or fill in data of prior balance   
@@ -453,8 +459,6 @@ def balance():
 
         return render_template('Success.html')
         
-
-
 
 @app.route('/buy', methods = ['POST', 'GET'])
 def buy():
@@ -495,10 +499,11 @@ def sell():
 
         return redirect('/home')
 
+
 @app.route('/new_account', methods = ['POST', 'GET'])
 def make_account():
     form = NewAccountForm()
-
+    error = []
     if request.method == 'POST':
         if form.validate() == False:
             return render_template('new_account.html', account_readout=False, form=form)
@@ -512,7 +517,7 @@ def make_account():
             str_date_opened = date_opened.strftime("%x")
 
             customer = Customer.query.filter_by(ssn=primary_ssn).first()
-            if customer:        #TODO most likely change this to a catch error
+            if customer:      
                 owner_ssn = customer.ssn
                 account = Account(owner_ssn, account_number, opening_deposit, product, str_date_opened)
 
@@ -521,12 +526,12 @@ def make_account():
                 db.session.add(account)
                 db.session.commit()
                 return render_template('success.html', title="Success")
+
             else:
                 error = "Customer Does not Exist"
                 errors.append(error)
                 return render_template('new_account.html', errors=errors, account_readout=False, form=form)
             
-
     if request.method == 'GET':
         return render_template('new_account.html', account_readout=False, form=form)
 
@@ -553,7 +558,7 @@ def make_customer():
     if request.method == 'GET':
         return render_template('new_customer.html', account_readout=False, form=form)
 
-@app.route('/search', methods = ['POST', 'GET'])    #TODO add fuzzy search functionality.propbably with postgresql
+@app.route('/search', methods = ['POST', 'GET']) 
 def search():
     form = SearchForm()
     customer_attr_types = [('name', 'Name'), ('ssn', 'SSN')]
@@ -571,12 +576,13 @@ def search():
             customers = Customer.search_customer(form.attr_type.data, form.search_param.data)
             return render_template('search.html', search_return=True, customers=customers)
 
-        if form.search_type.data == 'account':   #TODO fix account search functionality
+        if form.search_type.data == 'account':  
             accounts = Account.search_account(form.attr_type.data, form.search_param.data)
             return render_template('search.html', search_return=True, accounts=accounts)
         
     else:
         return render_template('search.html', form=form)
+
 
 @app.route('/customer')
 def customer_inquiry():
@@ -585,7 +591,6 @@ def customer_inquiry():
     accounts = customer.accounts
 
     return render_template('customer.html', customer=customer, accounts=accounts)
-
 
 
 @app.route('/add_customer', methods=['GET', 'POST'])

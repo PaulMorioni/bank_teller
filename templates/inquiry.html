@@ -38,7 +38,7 @@
             <tr>
                 <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
                 <td>{{customer.dob}}</td>
-                <td>{{customer.ssn}}</td>
+                <td>{{customer.formatted_string_ssn()}}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -69,7 +69,11 @@
                     <tr>
                         <td>{{transaction.time}}</td>
                         <td>{{transaction.description}}</td>
-                        <td>{{transaction.formatted_amount()}}</td>
+                        {% if transaction.isDebit() %}
+                            <td class="debit">({{ transaction.formatted_amount() }})</td>
+                        {% else %}
+                            <td>{{ transaction.formatted_amount() }}</td>
+                        {% endif %}
                     </tr>
                 {%endfor%}
             </tbody>

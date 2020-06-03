@@ -34,7 +34,7 @@
                     <tr>
                         <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
                         <td>{{customer.dob}}</td>
-                        <td>{{customer.ssn}}</td>
+                        <td>{{customer.formatted_string_ssn()}}</td>
                     </tr>
                 {% endfor %}
             </tbody>
