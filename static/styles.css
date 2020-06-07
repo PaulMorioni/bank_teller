@@ -1,0 +1,19 @@
+@media (min-width: 992px){
+    .navbar li {
+        margin-left : 1em;
+        margin-right : 1em;
+    }
+}
+
+
+.error {
+    color: red;
+}
+
+.content-container{
+    vertical-align: middle;
+}
+
+.debit {
+    color: red;
+}

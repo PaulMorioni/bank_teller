@@ -1,4 +1,5 @@
-from flask import Flask, request, redirect, render_template, session, flash
+from flask import Flask, request, redirect, render_template, session, flash, jsonify
+from flask_assets import Bundle, Environment
 from flask_sqlalchemy import SQLAlchemy
 from datetime import *
 import random
@@ -11,14 +12,22 @@ from decimal import *
 __name__ = '__main__'
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://bank_teller:bankandtrust@localhost:8889/bank_teller'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://bank_teller:bankandtrust@localhost:8899/bank_teller'
 app.config['SQLALCHEMY_ECHO'] = True
+
 db = SQLAlchemy(app)
 app.secret_key = 'y337ksdfwh34132w'
-locale.setlocale( locale.LC_ALL,'English_United States.1252')
+locale.setlocale( locale.LC_ALL,'English_United States.1252'
 
 debit_trancodes = [50, 500, 150]
 credit_trancodes = [13, 113, 400]
+
+js = Bundle('jquery.min.js', 'jquery.min.map', 'bootstrap.min.js', 'bootstrap.min.js.map', 'popper.min.js', 'popper.min.js.map', output='gen/main.js')
+
+assets = Environment(app)
+assets.register('main_js', js)
+
+
 
 class Teller(db.Model):
 
