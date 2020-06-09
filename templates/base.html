@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+    {% block head %}
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -9,11 +10,24 @@
     <link rel="stylesheet" href="{{url_for('.static', filename='bootstrap.css.map')}}"></link>
     <link rel="stylesheet" href="{{url_for('.static', filename='styles.css')}}"></link>
 
+    <script type="text/javascript" src="{{url_for('.static', filename='jquery.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('.static', filename='jquery.min.map')}}"></script>
+
+    <script type="text/javascript" src="{{url_for('.static', filename='popper.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('.static', filename='popper.min.js.map')}}"></script>
+
+    <script type="text/javascript" src="{{url_for('.static', filename='bootstrap.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('.static', filename='bootstrap.min.js.map')}}"></script>
+
+{% endblock %}
+
         <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    {% assets "main_js" %}
+
+
+    <!-- {% assets "main_js" %} Will be replaced after JS debugging.
     <script type='text/javascript' src="{{ ASSET_URL }}"></script>
-    {% endassets %}
+    {% endassets %} --> 
 
 
 

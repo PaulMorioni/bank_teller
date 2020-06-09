@@ -17,16 +17,17 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 db = SQLAlchemy(app)
 app.secret_key = 'y337ksdfwh34132w'
-locale.setlocale( locale.LC_ALL,'English_United States.1252'
+locale.setlocale( locale.LC_ALL,'English_United States.1252')
+
+assets = Environment(app)
+        
+#js = Bundle('jquery.min.js', 'jquery.min.map', 'popper.min.js', 'popper.min.js.map', 'bootstrap.min.js', 'bootstrap.min.js.map', 'balance.js', output='gen/main.js')
+
+#assets.register('main_js', js)
+
 
 debit_trancodes = [50, 500, 150]
 credit_trancodes = [13, 113, 400]
-
-js = Bundle('jquery.min.js', 'jquery.min.map', 'bootstrap.min.js', 'bootstrap.min.js.map', 'popper.min.js', 'popper.min.js.map', output='gen/main.js')
-
-assets = Environment(app)
-assets.register('main_js', js)
-
 
 
 class Teller(db.Model):
@@ -230,7 +231,7 @@ class Trans(db.Model):
             return False
 
 
-@app.before_request
+@app.before_request #TODO fix issue with not loading JS until after this request
 def require_login():
     allowed_routes = ['teller_login', 'home']
     if request.endpoint not in allowed_routes and 'teller_id' not in session:
@@ -573,7 +574,7 @@ def search():
     customer_attr_types = [('name', 'Name'), ('ssn', 'SSN')]
     account_attr_types = [('account_number', 'Account Number'), ('product', 'Product'), ('date_opened', 'Date Opened')]
 
-    form.attr_type.choices = account_attr_types
+    form.attr_type.choices = customer_attr_types    
 
     if request.method == 'GET':
         
@@ -583,7 +584,7 @@ def search():
     if request.method == 'POST' and form.validate():   #Uses radio button to determine which Class search function to call.
         if form.search_type.data == 'customer':
             customers = Customer.search_customer(form.attr_type.data, form.search_param.data)
-            return render_template('search.html', search_return=True, customers=customers)
+            return render_template( 'search.html', search_return=True, customers=customers)
 
         if form.search_type.data == 'account':  
             accounts = Account.search_account(form.attr_type.data, form.search_param.data)
