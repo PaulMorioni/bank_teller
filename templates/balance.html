@@ -87,7 +87,9 @@
 
     </table>
 
-    {{ form.submit }}   <p id=id="tellerBalance">Teller Cash Balance:</p> <p id="tellerBalance"> {{ teller.rounded_amount() }}</p>
+    {{ form.submit(id='submit') }}   <p>Teller Cash Balance: </p><p id="tellerBalance"> {{ teller.rounded_amount() }}</p>
+    <p>Teller Cash Balance:</p>  <p id="initTellerBalance">{{ teller.rounded_amount() }}</p>
+
 
 </form>
 {% endblock %}
