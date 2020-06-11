@@ -570,28 +570,29 @@ def make_customer():
 
 @app.route('/search', methods = ['POST', 'GET']) 
 def search():
-    form = SearchForm()
+    wform = SearchForm()
+    
     customer_attr_types = [('name', 'Name'), ('ssn', 'SSN')]
     account_attr_types = [('account_number', 'Account Number'), ('product', 'Product'), ('date_opened', 'Date Opened')]
 
-    form.attr_type.choices = customer_attr_types    
+    wform.attr_type.choices = customer_attr_types    
 
     if request.method == 'GET':
         
-        return render_template('search.html', form=form)
+        return render_template('search.html', form=wform)
 
 
-    if request.method == 'POST' and form.validate():   #Uses radio button to determine which Class search function to call.
-        if form.search_type.data == 'customer':
-            customers = Customer.search_customer(form.attr_type.data, form.search_param.data)
+    if request.method == 'POST' and wform.validate():   #Uses radio button to determine which Class search function to call.
+        if request.form[searchType] == 'customer':
+            customers = Customer.search_customer(wform.attr_type.data, wform.search_param.data)
             return render_template( 'search.html', search_return=True, customers=customers)
 
-        if form.search_type.data == 'account':  
-            accounts = Account.search_account(form.attr_type.data, form.search_param.data)
+        if request.form[searchType] == 'account':  
+            accounts = Account.search_account(wform.attr_type.data, wform.search_param.data)
             return render_template('search.html', search_return=True, accounts=accounts)
         
     else:
-        return render_template('search.html', form=form)
+        return render_template('search.html', form=wform)
 
 
 @app.route('/customer')

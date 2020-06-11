@@ -99,7 +99,7 @@ class InquiryForm(FlaskForm):
 class SearchForm(FlaskForm):
     class Meta:
         csrf = False
-    search_type = RadioField('Type', validators = [validators.DataRequired()], choices=[('customer','Customer'), ('account', 'Account')],)
+    
     attr_type = SelectField('Search Parameter', choices = [], validators = [validators.DataRequired()])
     search_param = StringField('Search For', validators = [validators.DataRequired()])
     

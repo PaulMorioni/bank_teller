@@ -1,19 +1,28 @@
 {% extends 'base.html' %}
 
+{% block head %}
+{{ super() }}
+<head>
+   <script type="text/javascript" src="{{url_for('.static', filename='search.js')}}"></script>
+</head>
+{% endblock %}
+
+
+
 {%block content%}
 
 {% if form %}
     <form action="/search" method="POST">
         <legend>Search</legend>
 
-        {{ form.search_type.label }}
-        {{ form.search_type }}
+        <input class="searchType" type="radio" name="searchType" id="searchType1"> Customer </input>
+        <input class="searchType" type="radio" name="searchType" id="searchType2"> Account </input><br>
 
         {{ form.attr_type.label }}
-        {{ form.attr_type }}
+        {{ form.attr_type (id='attrType') }}
 
         {{ form.search_param.label }}
-        {{ form.search_param }}
+        {{ form.search_param (id='searchParam')}}
         
         {{form.submit}}
     </form>
