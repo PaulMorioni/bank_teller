@@ -100,7 +100,7 @@ class SearchForm(FlaskForm):
     class Meta:
         csrf = False
     
-    attr_type = SelectField('Search Parameter', choices = [], validators = [validators.DataRequired()])
+    attr_type = SelectField('Search Parameter', choices = [])
     search_param = StringField('Search For', validators = [validators.DataRequired()])
     
     submit = SubmitField('Submit')

@@ -103,7 +103,7 @@ $(function() {
         htmlValue = htmlValue.trim();   //removes whitespace for float formatting
         htmlValue = parseFloat(htmlValue);
         return htmlValue
-    }
+    };
 
     function closestWholeNumber(elementValue, divider){
         elementValue = parseFloat(elementValue);

@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 
-{% block content %}
 
+{% block head %}
+{{ super() }}
+<head>
+   <script type="text/javascript" src="{{url_for('.static', filename='inquiry.js')}}"></script>
+</head>
+{% endblock %}
+
+
+{% block content %}
 
 <div class="form-group">
     {% if form %}
@@ -31,6 +39,7 @@
             <th>Name</th>
             <th>Date of Birth</th>
             <th>SSN</th>
+            <th></th>
         </thead>
 
         <tbody>
@@ -39,6 +48,7 @@
                 <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
                 <td>{{customer.dob}}</td>
                 <td>{{customer.formatted_string_ssn()}}</td>
+                <td></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -48,13 +58,15 @@
                 <th>Account Number</th>
                 <th>Balance</th>
                 <th>Type</th>
+                <th></th>
             </thead>
 
             <tbody>
                 <tr>
                     <td>{{account.acctn}}</td>
-                    <td>{{account.formatted_balance()}}</td>
+                    <td id="accountBalance">{{account.formatted_balance()}}</td>
                     <td>{{account.prod}}</td>
+                    <td></td>
                 </tr>
             </tbody>
 
@@ -62,6 +74,7 @@
                 <th>Time</th>
                 <th>Description</th>
                 <th>Amount</th>
+                <th>Balance</th>
             </thead>
 
             <tbody>
@@ -70,10 +83,11 @@
                         <td>{{transaction.time}}</td>
                         <td>{{transaction.description}}</td>
                         {% if transaction.isDebit() %}
-                            <td class="debit">({{ transaction.formatted_amount() }})</td>
+                            <td class="trans" data-dir="debit">({{ transaction.formatted_amount() }})</td>
                         {% else %}
-                            <td>{{ transaction.formatted_amount() }}</td>
+                            <td class="trans" data-dir="credit">{{ transaction.formatted_amount() }}</td>
                         {% endif %}
+                        <td class="runningBalance"></td>
                     </tr>
                 {%endfor%}
             </tbody>

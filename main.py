@@ -174,8 +174,11 @@ class Account(db.Model):    #TODO add function to calculate running balance with
 
     def primary_owner(self):
         owners = self.owners()
-        primary_owner = owners[0]
-        return primary_owner
+        if owners:
+            primary_owner = owners[0]
+            return primary_owner
+        else:
+            return None
 
     @staticmethod
     def search_account(attr_search, search_param):
@@ -571,9 +574,8 @@ def make_customer():
 @app.route('/search', methods = ['POST', 'GET']) 
 def search():
     wform = SearchForm()
-    
+
     customer_attr_types = [('name', 'Name'), ('ssn', 'SSN')]
-    account_attr_types = [('account_number', 'Account Number'), ('product', 'Product'), ('date_opened', 'Date Opened')]
 
     wform.attr_type.choices = customer_attr_types    
 
@@ -582,12 +584,13 @@ def search():
         return render_template('search.html', form=wform)
 
 
-    if request.method == 'POST' and wform.validate():   #Uses radio button to determine which Class search function to call.
-        if request.form[searchType] == 'customer':
+    if request.method == 'POST':   #Uses radio button to determine which Class search function to call.
+        search_type = request.form['searchType']
+        if search_type == 'customer':
             customers = Customer.search_customer(wform.attr_type.data, wform.search_param.data)
             return render_template( 'search.html', search_return=True, customers=customers)
 
-        if request.form[searchType] == 'account':  
+        if search_type == 'account':  
             accounts = Account.search_account(wform.attr_type.data, wform.search_param.data)
             return render_template('search.html', search_return=True, accounts=accounts)
         
@@ -604,7 +607,7 @@ def customer_inquiry():
     return render_template('customer.html', customer=customer, accounts=accounts)
 
 
-@app.route('/add_customer', methods=['GET', 'POST'])
+@app.route('/add_customer', methods=['GET', 'POST']) #TODO add more functionality with JS?
 def add_customer():
     form = CustomerForm()
 

@@ -14,6 +14,6 @@
     vertical-align: middle;
 }
 
-.debit {
+[data-dir='debit'] {
     color: red;
 }

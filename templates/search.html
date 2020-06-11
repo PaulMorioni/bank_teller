@@ -15,8 +15,8 @@
     <form action="/search" method="POST">
         <legend>Search</legend>
 
-        <input class="searchType" type="radio" name="searchType" id="searchType1"> Customer </input>
-        <input class="searchType" type="radio" name="searchType" id="searchType2"> Account </input><br>
+        <input class="searchType" type="radio" name="searchType" id="searchType1" value="customer"> Customer </input>
+        <input class="searchType" type="radio" name="searchType" id="searchType2" value="account"> Account </input><br>
 
         {{ form.attr_type.label }}
         {{ form.attr_type (id='attrType') }}

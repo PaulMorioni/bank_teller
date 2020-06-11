@@ -2,6 +2,11 @@ $(function() {
 
     customer_attr_types = [['name', 'Name'], ['ssn', 'SSN']]
     account_attr_types = [['account_number', 'Account Number'], ['product', 'Product'], ['date_opened', 'Date Opened']]
+    customerDefault();
+
+    function customerDefault () {
+        document.getElementById('searchType1').checked = true;
+    };
 
     customerAttrObjs = attrObjFromArray(customer_attr_types);
     accountAttrObjs = attrObjFromArray(account_attr_types);
@@ -51,5 +56,6 @@ $(function() {
         }
         return objArray
      };
+
 
 }); //ends container function call
