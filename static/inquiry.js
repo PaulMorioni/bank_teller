@@ -1,13 +1,11 @@
 $(function() { 
     let accountBalance = document.getElementById('accountBalance');
     let accountBalanceStr = (accountBalance).innerHTML;
-    let accountBalanceFlt = htmlToFloat(accountBalanceStr);
-    
-    $('.trans').click(function () { 
-        let elementArray = makeElementArray()
-        let newElementArray = calculateRunningBalance(elementArray, accountBalanceFlt);
-        addRunningBalance(newElementArray)
-    });
+    let accountBalanceFlt = htmlToFloat(accountBalanceStr); 
+    checkBalancePositive(accountBalanceFlt, accountBalance)
+    let elementArray = makeElementArray()
+    let newElementArray = calculateRunningBalance(elementArray, accountBalanceFlt);
+    addRunningBalance(newElementArray)
     
 
     function htmlToFloat(htmlValue){
@@ -66,9 +64,34 @@ $(function() {
         $('.runningBalance').each(function (index, element) {
             // element == this
             transObj = newElementArray.pop()
-            $(this).html(transObj.runningBalance)
-            
+            let runningBalance = formatRunningBalance(transObj.runningBalance);
+            $(this).html(runningBalance)
+            if (runningBalance.includes('(')){
+                (this).setAttribute('data-dir', 'debit')    
+            };
         });
+    };
+
+    function formatRunningBalance(runningBalance){
+        runningBalance = parseFloat(runningBalance)
+        if (runningBalance > 0){
+            runningBalance = (runningBalance.toFixed(2)).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            runningBalance = '$' + runningBalance
+        } else if (runningBalance < 0 ){
+            runningBalance = (runningBalance.toFixed(2)).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            runningBalance = runningBalance.replace('-','')
+            runningBalance = '($' + runningBalance + ')'
+        } else {
+            runningBalance.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            runningBalance = '$' + runningBalance
+        };
+        return runningBalance
+    };
+
+    function checkBalancePositive (accountBalanceFlt, accountBalance) {
+        if (accountBalanceFlt < 0) {
+            (accountBalance).setAttribute('data-dir', 'debit')
+        };
     };
 
 });
