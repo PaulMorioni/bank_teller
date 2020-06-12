@@ -3,24 +3,34 @@
 {% block content %}
 
 
-<div>
-    <form action = "/deposit" method= POST>
-        <legend>Deposit</legend>
-        <p>
-            {{ form.account.label }}<br>
-            {{ form.account (class='form-control')}}
-            <br>
+<div class="container">
+    <div class="row">
+        <div class="col-6 text-center mx-auto">
+            <form action = "/deposit" method= POST>
+                <legend>Deposit</legend>
+                <div class="form-group">
+                    {{ form.account.label }}
+                    {{ form.account (class='form-control')}}
+                </div>
 
-            {{ form.amount.label }}<br>
-            {{ form.amount (class='form-control')}}
-            <br>
+                <div class="form-group">
+                    {{ form.cash_amount.label }}
+                    {{ form.cash_amount (class='form-control')}}
+                </div>
+             
+                <div class="form-group">
+                    {{ form.check_amount.label }}
+                    {{ form.check_amount (class='form-control')}}
+                </div>
+                
+                <div class="form-group col-6 col-md-4 col-lg-3 mx-auto">
+                    {{ form.submit (class="form-control btn btn-primary")}}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>>
 
-            {{ form.submit (class='form-control')}}
-            <br>
-        </p>
-    </form>
-</div>
-</html>
 {% endblock %}
 
 

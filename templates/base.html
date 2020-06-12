@@ -42,70 +42,6 @@
 
 </head>
 
-{% if account_readout %}
-    {% block account_readout %}
-        <div class="account_readout">
-
-            {% for customer in customers %}
-
-                <table>
-                    <tr>
-                        <th>Name    </th>
-                        <th>Date of Birth   </th>
-                        <th>SSN    </th>
-                    </tr>
-
-                    <tr>
-                        <td>{{customer.name}}   </td>
-                        <td>{{customer.dob}}    </td>
-                        <td>{{customer.ssn}}    </td>
-                    </tr>
-                </table>
-            {% endfor %}
-
-            {% if accounts %}
-                {% for account in accounts %}
-                    <table>
-
-                        <tr>
-                            <th>Account Number    </th>
-                            <th>Balance    </th>
-                            <th>Type    </th>
-                        </tr>
-
-                        <tr>
-                            <td>{{account.acctn}}   </td>
-                            <td>{{account.bal}}   </td>
-                            <td>{{account.product}}   </td>
-                        </tr>
-                    </table>
-                    
-                    {% if account.transactions %}
-                        <table>
-
-                            <tr>
-                                <th>Time    </th>
-                                <th>Description </th>
-                                <th>Amount  </th>
-                            </tr>
-
-
-                            {% for transaction in account.transactions %}
-                                <tr>
-                                    <td>{{transaction.time}}    </td>
-                                    <td>{{transaction.description}}    </td>
-                                    <td>{{transaction.amount}}    </td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-
-        </div>
-    {% endblock %}
-{% endif %}
-
 
 {% block navbar %}
 <nav  class="navbar navbar-expand-lg navbar-light bg-light">
@@ -125,9 +61,6 @@
                 <a class="nav-link" href="/new_account">New Account</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/inquiry">Inquiry</a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link" href="/deposit">Deposit</a>
             </li>
             <li class="nav-item">
@@ -137,9 +70,6 @@
                 <a class="nav-link" href="/transfer">Transfer</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/search">Search</a>
-            </li>  
-            <li class="nav-item">
                 <a class="nav-link" href="/buy">Buy</a>
             </li> 
             <li class="nav-item">
@@ -147,7 +77,10 @@
             </li> 
             <li class="nav-item">
                 <a class="nav-link" href="/balance">Balance</a>
-            </li> 
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/search">Search</a>
+            </li>   
         </ul>
     </div>
   </nav>

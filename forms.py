@@ -21,7 +21,7 @@ class NewCustomerForm(FlaskForm):
         csrf = False
 
     name = StringField('Full Name' , validators = [validators.DataRequired(), validators.Length(min=5, max=50, message="Name must be between 5 and 50 Characters")])
-    dob = StringField('Date of Birth MM/DD/YYYY' , validators = [validators.DataRequired(), validators.Length(min=10, max=10, message="DD/MM/YYYY")])
+    dob = StringField('Date of Birth (MM/DD/YYYY)' , validators = [validators.DataRequired(), validators.Length(min=10, max=10, message="DD/MM/YYYY")])
     ssn = StringField('Social Security Number' , validators = [validators.DataRequired(), validators.Length(min=9, max=9, message="SSN is 9 Digits")])
     submit = SubmitField('Submit')
 
@@ -29,12 +29,9 @@ class NewAccountForm(FlaskForm):
     class Meta:
         csrf = False
 
-
-    products = [("Regular Non-Personal","Regular Non-Personal"),("Personal Account", "Personal Account"),("High Interest Checking", "High Interest Checking"),("Savings Account","Savings Account")]
     account_number = IntegerField('Account Number', [validators.DataRequired() ])
     primary_ssn = StringField('Social Security Number' , [validators.DataRequired(), validators.Length(min=9,max=9,message="SSNs are 9 Digits") ])
     bal = DecimalField('Opening Deposit', [validators.DataRequired() ])
-    product = RadioField('Product', [validators.DataRequired()], choices=products)
     submit = SubmitField('Submit')
 
 
@@ -76,8 +73,9 @@ class DepositForm(FlaskForm):
     class Meta:
         csrf = False
     
-    account = IntegerField('Account Number', [validators.DataRequired()])
-    amount = DecimalField('Amount of Deposit', [validators.DataRequired()])
+    account = IntegerField('Account Number')
+    cash_amount = DecimalField('Amount of Cash')
+    check_amount = DecimalField('Amount of Checks')
     submit = SubmitField('Submit')
     
 
@@ -86,7 +84,7 @@ class WithdrawlForm(FlaskForm):
         csrf = False
     
     account = IntegerField('Account Number', [validators.DataRequired()])
-    amount = DecimalField('Amount of Withdrwl', [validators.DataRequired()])
+    amount = DecimalField('Amount of Withdrawl', [validators.DataRequired()])
     submit = SubmitField('Submit')
 
 class InquiryForm(FlaskForm):

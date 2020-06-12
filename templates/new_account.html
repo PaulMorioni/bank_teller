@@ -4,42 +4,48 @@
 
 
 
-<div>
-    <form action = "new_account" method = post>
-            <legend>New Account Form</legend>  
-            <p>
-                {{ form.account_number.label }}<br>
-                {{ form.account_number (class='form-control')}}
-            {% if form.account_number.errors %}
-                <ul class="=errors">{% for error in form.account_number.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-            {% endif %}
-                <br>
+<div class="container">
+    <div class="row">
+        <div class="col-6 text-center mx-auto">
+            <form action = "new_account" method = post>
+                <legend>New Account Form</legend>  
+                
+                <div class="form-group col-10 mx-auto">
+                    {{ form.account_number.label }}
+                    {{ form.account_number (class='form-control')}}
+                </div>
 
-                {{ form.primary_ssn.label }}<br>
-                {{ form.primary_ssn (class='form-control')}}
-            {% if form.primary_ssn.errors %}
-                <ul class="=errors">{% for error in form.primary_ssn.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-            {% endif %}
-                <br>
+                <div class="form-group col-10 mx-auto">
+                    {{ form.primary_ssn.label }}
+                    {{ form.primary_ssn (class='form-control')}}
+                </div>
+          
+                <div class="form-group col-10 mx-auto">
+                    {{ form.bal.label }}
+                    {{ form.bal (class='form-control')}}
+                </div>
 
-                {{ form.bal.label }}<br>
-                {{ form.bal (class='form-control')}}
-            {% if form.bal.errors %}
-                <ul class="=errors">{% for error in form.bal.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-            {% endif %}
-                <br>
-
-                {{ form.product.label }}<br>
-                {{ form.product (class='form-control')}}
-            {% if form.product.errors %}
-                <ul class="=errors">{% for error in form.product.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-            {% endif %}
-                <br>
-
-                {{ form.submit (class='form-control')}}
-                <br>
-            </p>
-    </form>
+                <div class="btn-group btn-group-toggle col-12 mx-auto form-group" data-toggle="buttons">
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="product" id="product1" value="Regular Non-Personal">Regular Non-Personal</input>
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="product" id="product2" value="Personal Account"> Personal Account</input>
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="product" id="product3" value="High Interest Checking"> High Interest Checking</input>
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="product" id="product4" value="Savings Account"> Savings Account</input>
+                    </label>
+                </div>
+                  
+                <div class="form-group col-6 col-md-6 col-lg-4 mx-auto">
+                    {{ form.submit (class='form-control btn btn-primary')}}
+                </div>
+    
+            </form>
+        </div>
+    </div>
 </div>
-</html>
 {% endblock %}

@@ -3,8 +3,8 @@
 {% block content %}
 
 <div class="container">
-    <div class="row mx-auto">
-        <div class="col">
+    <div class="row">
+        <div class="col-8 mx-auto text-center">
             <form action = "/sell" method= POST>
                 <div class="form-group text-center">
                 <legend>Sell</legend>
@@ -22,7 +22,7 @@
                     {{ form.description (class='form-control')}}
                 </div>
 
-                <div class="col-2 col-offset-6 centered mx-auto">
+                <div class="col-4 col-md-3 mx-auto">
                     {{ form.submit (class='form-control btn btn-primary')}}
 
                 </div>

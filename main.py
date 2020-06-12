@@ -44,9 +44,9 @@ class Teller(db.Model):
     def changecash(self, trancode, amount):
         cur_cash = self.cashbal
         if trancode in credit_trancodes: #credit relative to perspective account will be opposite of teller GL (i.e. credit trancodes will debit teller)
-            self.cashbal = cur_cash - amount
-        elif trancode in debit_trancodes: #opposite of above comment
             self.cashbal = cur_cash + amount
+        elif trancode in debit_trancodes: #opposite of above comment
+            self.cashbal = cur_cash - amount
         
         db.session.commit()
 
@@ -120,7 +120,7 @@ class Customer(db.Model):
 
         return search_return
 
-class Account(db.Model):    #TODO add function to calculate running balance with transactions for inquiry screen
+class Account(db.Model):
     account_id = db.Column(db.Integer, primary_key=True)
     acctn = db.Column(db.Integer, unique=True)
     primary_ssn = db.Column(db.Integer)
@@ -286,9 +286,17 @@ def deposit():
 
         if account: #If account could be located
 
-            amount = form.amount.data
 
-            desc = 'Deposit with Teller'
+            cash_amount = form.cash_amount.data
+            check_amount = form.check_amount.data
+            amount = cash_amount + check_amount
+
+            teller_id = session['teller_id']
+            teller = Teller.query.filter_by(teller_id=teller_id).first()
+
+            teller.changecash(trancode, amount)
+
+            desc = 'Deposit with Teller ' + str(teller_id)
             tran_time = datetime.now()
             str_tran_time = tran_time.strftime('%x , %X')
 
@@ -328,13 +336,18 @@ def withdrawl():
 
             amount = form.amount.data
 
-            desc = 'Withdrawl with Teller'
+            teller_id = session['teller_id']
+            teller = Teller.query.filter_by(teller_id=teller_id).first()
+
+            desc = 'Withdrawl with Teller ' + str(teller_id)
             tran_time = datetime.now()
             str_tran_time = tran_time.strftime('%x , %X')
 
             new_withdrawl = Trans(str_tran_time, amount, desc, trancode)    # makes new transaction
 
             account.transactions.append(new_withdrawl)  # adds transaction to account
+
+            teller.changecash(trancode, amount)
 
             db.session.add(new_withdrawl)
             account.calc_balance(trancode, amount)  #calculates balance of account
@@ -406,7 +419,7 @@ def transfer():
     
     
 @app.route('/inquiry', methods = ['POST', 'GET'])
-def inquiry():  #TODO add running balance 
+def inquiry(): 
     form = InquiryForm()
     account_id = request.args.get('acct')
     errors = []
@@ -513,10 +526,11 @@ def sell():
         return redirect('/home')
 
 
-@app.route('/new_account', methods = ['POST', 'GET'])
+@app.route('/new_account', methods = ['POST', 'GET'])   #TODO add cash and check deposit fields to allow for teller cash handeling
 def make_account():
     form = NewAccountForm()
     error = []
+    trancode = 13
     if request.method == 'POST':
         if form.validate() == False:
             return render_template('new_account.html', account_readout=False, form=form)
@@ -525,14 +539,20 @@ def make_account():
             account_number = form.account_number.data
             primary_ssn = form.primary_ssn.data
             opening_deposit =form.bal.data
-            product = form.product.data
+            product = request.form['product']
             date_opened = datetime.now()
             str_date_opened = date_opened.strftime("%x")
+            str_tran_time = date_opened.strftime('%x , %X')
 
             customer = Customer.query.filter_by(ssn=primary_ssn).first()
             if customer:      
                 owner_ssn = customer.ssn
                 account = Account(owner_ssn, account_number, opening_deposit, product, str_date_opened)
+                
+                desc = 'Opening Deposit'
+                opening_transaction = Trans(str_tran_time, opening_deposit, desc, trancode)
+                account.transactions.append(opening_transaction)
+                
 
                 customer.accounts.append(account)       #Relates customer to account owner.
 

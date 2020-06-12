@@ -8,94 +8,98 @@
 
 {% block content %}
 <div class="container">
-    <form action="/balance" method="POST">
-        <table class="table table-bordered table-striped">
-            <tbody>
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Currency</th>
-                        <th>Singles</th>
-                        <th>Bundles</th>
-                    </tr>
-                </thead>
-                <tr>
-                    <th>{{ form.hundreds.label }}</th>
-                    <td>{{ form.hundreds(class='balanceFormField', id='hundreds') }}</td>
-                    <td>{{ form.hundreds_bundles(class='balanceFormField', id='hundred_bundles') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.fifties.label }}</th>
-                    <td>{{ form.fifties(class='balanceFormField', id='fifties') }}</td>
-                    <td>{{ form.fifties_bundles(class='balanceFormField', id='fifties_bundles') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.twenties.label }}</th>
-                    <td>{{ form.twenties(class='balanceFormField', id='twenties') }}</td>
-                    <td>{{ form.twenties_bundles(class='balanceFormField', id='twenties_bundles') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.tens.label }}</th>
-                    <td>{{ form.tens(class='balanceFormField', id='tens') }}</td>
-                    <td>{{ form.tens_bundles(class='balanceFormField', id='tens_bundles') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.fives.label }}</th>
-                    <td>{{ form.fives(class='balanceFormField', id='fives') }}</td>
-                    <td>{{ form.fives_bundles(class='balanceFormField', id='fives_bundles') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.twos.label }}</th>
-                    <td>{{ form.twos(class='balanceFormField', id='twos') }}</td>
-                    <td>{{ form.twos_bundles(class='balanceFormField', id='twos_bundles') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.ones.label }}</th>
-                    <td>{{ form.ones(class='balanceFormField', id='ones') }}</td>
-                    <td>{{ form.ones_bundles(class='balanceFormField', id='ones_bundles') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.dollarc.label }}</th>
-                    <td>{{ form.dollarc(class='balanceFormField', id='dollarc') }}</td>
-                    <td>{{ form.dollarc_rolls(class='balanceFormField', id='dollarc_rolls') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.halves.label }}</th>
-                    <td>{{ form.halves(class='balanceFormField', id='halves') }}</td>
-                    <td>{{ form.halves_rolls(class='balanceFormField', id='halves_rolls') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.quarters.label }}</th>
-                    <td>{{ form.quarters(class='balanceFormField', id='quarters') }}</td>
-                    <td >{{ form.quarters_rolls(class='balanceFormField', id='quarters_rolls') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.dimes.label }}</th>
-                    <td>{{ form.dimes(class='balanceFormField', id='dimes') }}</td>
-                    <td>{{ form.dimes_rolls(class='balanceFormField', id='dimes_rolls') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.nickels.label }}</th>
-                    <td>{{ form.nickels(class='balanceFormField', id='nickels') }}</td>
-                    <td>{{ form.nickels_rolls(class='balanceFormField', id='nickels_rolls') }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.pennies.label }}</th>
-                    <td>{{ form.pennies(class='balanceFormField', id='pennies') }}</td>
-                    <td>{{ form.pennies_rolls(class='balanceFormField', id='pennies_rolls') }}</td>
-                </tr>
-                <tr>
-                    <th></th>
-                    <th>Amount Balanced:</th>
-                    <th>Teller Cash Balance:</th>
-                </tr>
-                <tr>
-                    <td>{{ form.submit(id='submit') }}</td>
-                    <td id="tellerBalance"> {{ teller.rounded_amount() }}</td>
-                    <td id="initTellerBalance">{{ teller.rounded_amount() }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </form>
+    <div class="row">
+        <div class="col">
+            <form action="/balance" method="POST">
+                <table class="table table-bordered table-striped">
+                    <tbody>
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Currency</th>
+                                <th>Singles</th>
+                                <th>Bundles</th>
+                            </tr>
+                        </thead>
+                        <tr>
+                            <th>{{ form.hundreds.label }}</th>
+                            <td>{{ form.hundreds(class='balanceFormField', id='hundreds') }}</td>
+                            <td>{{ form.hundreds_bundles(class='balanceFormField', id='hundred_bundles') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.fifties.label }}</th>
+                            <td>{{ form.fifties(class='balanceFormField', id='fifties') }}</td>
+                            <td>{{ form.fifties_bundles(class='balanceFormField', id='fifties_bundles') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.twenties.label }}</th>
+                            <td>{{ form.twenties(class='balanceFormField', id='twenties') }}</td>
+                            <td>{{ form.twenties_bundles(class='balanceFormField', id='twenties_bundles') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.tens.label }}</th>
+                            <td>{{ form.tens(class='balanceFormField', id='tens') }}</td>
+                            <td>{{ form.tens_bundles(class='balanceFormField', id='tens_bundles') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.fives.label }}</th>
+                            <td>{{ form.fives(class='balanceFormField', id='fives') }}</td>
+                            <td>{{ form.fives_bundles(class='balanceFormField', id='fives_bundles') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.twos.label }}</th>
+                            <td>{{ form.twos(class='balanceFormField', id='twos') }}</td>
+                            <td>{{ form.twos_bundles(class='balanceFormField', id='twos_bundles') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.ones.label }}</th>
+                            <td>{{ form.ones(class='balanceFormField', id='ones') }}</td>
+                            <td>{{ form.ones_bundles(class='balanceFormField', id='ones_bundles') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.dollarc.label }}</th>
+                            <td>{{ form.dollarc(class='balanceFormField', id='dollarc') }}</td>
+                            <td>{{ form.dollarc_rolls(class='balanceFormField', id='dollarc_rolls') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.halves.label }}</th>
+                            <td>{{ form.halves(class='balanceFormField', id='halves') }}</td>
+                            <td>{{ form.halves_rolls(class='balanceFormField', id='halves_rolls') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.quarters.label }}</th>
+                            <td>{{ form.quarters(class='balanceFormField', id='quarters') }}</td>
+                            <td >{{ form.quarters_rolls(class='balanceFormField', id='quarters_rolls') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.dimes.label }}</th>
+                            <td>{{ form.dimes(class='balanceFormField', id='dimes') }}</td>
+                            <td>{{ form.dimes_rolls(class='balanceFormField', id='dimes_rolls') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.nickels.label }}</th>
+                            <td>{{ form.nickels(class='balanceFormField', id='nickels') }}</td>
+                            <td>{{ form.nickels_rolls(class='balanceFormField', id='nickels_rolls') }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.pennies.label }}</th>
+                            <td>{{ form.pennies(class='balanceFormField', id='pennies') }}</td>
+                            <td>{{ form.pennies_rolls(class='balanceFormField', id='pennies_rolls') }}</td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>Amount Balanced:</th>
+                            <th>Teller Cash Balance:</th>
+                        </tr>
+                        <tr>
+                            <td>{{ form.submit(id='submit') }}</td>
+                            <td id="tellerBalance"> {{ teller.rounded_amount() }}</td>
+                            <td id="initTellerBalance">{{ teller.rounded_amount() }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
