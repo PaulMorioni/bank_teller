@@ -9,34 +9,34 @@
             <legend>New Account Form</legend>  
             <p>
                 {{ form.account_number.label }}<br>
-                {{ form.account_number }}
+                {{ form.account_number (class='form-control')}}
             {% if form.account_number.errors %}
                 <ul class="=errors">{% for error in form.account_number.errors %}<li>{{ error }}</li>{% endfor %}</ul>
             {% endif %}
                 <br>
 
                 {{ form.primary_ssn.label }}<br>
-                {{ form.primary_ssn }}
+                {{ form.primary_ssn (class='form-control')}}
             {% if form.primary_ssn.errors %}
                 <ul class="=errors">{% for error in form.primary_ssn.errors %}<li>{{ error }}</li>{% endfor %}</ul>
             {% endif %}
                 <br>
 
                 {{ form.bal.label }}<br>
-                {{ form.bal }}
+                {{ form.bal (class='form-control')}}
             {% if form.bal.errors %}
                 <ul class="=errors">{% for error in form.bal.errors %}<li>{{ error }}</li>{% endfor %}</ul>
             {% endif %}
                 <br>
 
                 {{ form.product.label }}<br>
-                {{ form.product }}
+                {{ form.product (class='form-control')}}
             {% if form.product.errors %}
                 <ul class="=errors">{% for error in form.product.errors %}<li>{{ error }}</li>{% endfor %}</ul>
             {% endif %}
                 <br>
 
-                {{ form.submit }}
+                {{ form.submit (class='form-control')}}
                 <br>
             </p>
     </form>

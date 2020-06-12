@@ -2,25 +2,34 @@
 
 {% block content %}
 
-<div>
-    <form action = "/sell" method= POST>
-        <legend>Sell</legend>
-        <p>
-            {{ form.sell_to_id.label }}<br>
-            {{ form.sell_to_id }}
-            <br>
+<div class="container">
+    <div class="row mx-auto">
+        <div class="col">
+            <form action = "/sell" method= POST>
+                <div class="form-group text-center">
+                <legend>Sell</legend>
+                </div>
+                <div class="form-group col-6 mx-auto">
+                    {{ form.sell_to_id.label }}
+                    {{ form.sell_to_id (class='form-control')}}
+                </div>
+                <div class="form-group col-6 mx-auto">
+                    {{ form.amount.label }}
+                    {{ form.amount (class='form-control')}}
+                </div>
+                <div class="form-group col-6 mx-auto">
+                    {{ form.description.label}}
+                    {{ form.description (class='form-control')}}
+                </div>
 
-            {{ form.amount.label }}<br>
-            {{ form.amount }}
-            <br>
+                <div class="col-2 col-offset-6 centered mx-auto">
+                    {{ form.submit (class='form-control btn btn-primary')}}
 
-            {{ form.description.label}}<br>
-            {{ form.description}}
+                </div>
+            </form>
+        </div>
+    </div>
 
-            {{ form.submit }}
-            <br>
-        </p>
-    </form>
 </div>
 </html>
 {% endblock %}

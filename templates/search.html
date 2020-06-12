@@ -12,66 +12,96 @@
 {%block content%}
 
 {% if form %}
-    <form action="/search" method="POST">
-        <legend>Search</legend>
+<div class="container">
+    <div class="row mx-auto">
+        <div class="col col-6 mx-auto">
+            <form action="/search" method="POST">
+                <div class="text-center">
+                    <legend>Search</legend>
+                </div>
 
-        <input class="searchType" type="radio" name="searchType" id="searchType1" value="customer"> Customer </input>
-        <input class="searchType" type="radio" name="searchType" id="searchType2" value="account"> Account </input><br>
+                <div class="btn-group btn-group-toggle col-12" data-toggle="buttons">
+                    <label class="btn btn-secondary">
+                        <input class="searchType" type="radio" name="searchType" id="searchType1" value="customer"> Customer</input>
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input class="searchType" type="radio" name="searchType" id="searchType2" value="account"> Account</input>
+                    </label>
+                  </div>
 
-        {{ form.attr_type.label }}
-        {{ form.attr_type (id='attrType') }}
-
-        {{ form.search_param.label }}
-        {{ form.search_param (id='searchParam')}}
-        
-        {{form.submit}}
-    </form>
+                <div class="form-group col-sm-12 col-md-8 col-lg-6 content mx-auto text-center">
+                    {{ form.attr_type.label }}
+                    {{ form.attr_type (id='attrType', class='form-control') }}
+                </div>
+                <div class="form-group text-center col-lg-10 mx-auto">
+                    {{ form.search_param.label }}
+                    {{ form.search_param (id='searchParam', class='form-control')}}
+                </div>
+                <div class="col-xs-10 col-sm-8 col-lg-3 col-offset-6 centered mx-auto">
+                    {{form.submit (class='form-control', class='form-control btn btn-primary')}}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endif %}
+
 
 {% if search_return %}
 
     {% if customers %}
-        <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
-                <th>Name</th>
-                <th>Date of Birth</th>
-                <th>SSN</th>
-            </thead>
-
-            <tbody>
-                {% for customer in customers %}
-                    <tr>
-                        <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
-                        <td>{{customer.dob}}</td>
-                        <td>{{customer.formatted_string_ssn()}}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <th>Name</th>
+                            <th>Date of Birth</th>
+                            <th>SSN</th>
+                        </thead>
+        
+                        <tbody>
+                            {% for customer in customers %}
+                                <tr>
+                                    <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
+                                    <td>{{customer.dob}}</td>
+                                    <td>{{customer.formatted_string_ssn()}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     {% endif %}
 
     {% if accounts %}
-        <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
-                <th>Account Number</th>
-                <th>Balance</th>
-                <th>Type</th>
-                <th>Owner</th>
-            </thead>
-
-            <tbody>
-                {% for account in accounts %}
-                
-                    <tr>
-                        <td><a href="inquiry?acct={{account.account_id}}">{{account.acctn}}</a></td>
-                        <td>{{account.formatted_balance()}}</td>
-                        <td>{{account.prod}}</td>
-                        <td>{{account.primary_owner().name}}</td>
-                    </tr>
-                {%endfor%}
-            </tbody>
-        </table>
-    {%endif%}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-dark">
+                        <th>Account Number</th>
+                        <th>Balance</th>
+                        <th>Type</th>
+                        <th>Owner</th>
+                    </thead>
+                    
+                    <tbody>
+                        {% for account in accounts %}
+                            <tr>
+                                <td><a href="inquiry?acct={{account.account_id}}">{{account.acctn}}</a></td>
+                                <td>{{account.formatted_balance()}}</td>
+                                <td>{{account.prod}}</td>
+                                <td>{{account.primary_owner().name}}</td>
+                            </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            {%endif%}
+            </div>
+        </div>
+    </div>
     
 {% endif %}
 

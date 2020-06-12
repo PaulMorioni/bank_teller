@@ -11,89 +11,89 @@
 
 {% block content %}
 
-<div class="form-group">
-    {% if form %}
-                <form action = "/inquiry" method= POST>
-                    <legend>Inquiry</legend>
-                    <p class="inquiry">
-                        {{ form.account_number.label }}<br>
-                        {{ form.account_number }}
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            {% if form %}
+            <form action = "/inquiry" method= POST>
+                <legend>Inquiry</legend>
+                    <div class="form-group">
+                        {{ form.account_number.label }}
+                        {{ form.account_number (class='form-control')}}
+                    </div>
 
-                        {% if form.account_number.errors %}
-                        <ul class="error">{% for error in form.account_number.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-                        {% endif %}
-                        <br>
-
-                        {{ form.submit }}
-                        <br>
-                    </p>
-                </form>
+                {{ form.submit (class='form-control')}}
+    
+            </form>
+        </div>
     {% endif %}
+    </div>
 </div>
 
 
 {% if inquiry %}
-    
-    <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
-            <th>Name</th>
-            <th>Date of Birth</th>
-            <th>SSN</th>
-            <th></th>
-        </thead>
-
-        <tbody>
-            {% for customer in customers %}
-            <tr>
-                <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
-                <td>{{customer.dob}}</td>
-                <td>{{customer.formatted_string_ssn()}}</td>
-                <td></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-
-    {% if account %}
+    <div class="container">
+        <table class="table table-bordered table-striped">
             <thead class="thead-dark">
-                <th>Account Number</th>
-                <th>Balance</th>
-                <th>Type</th>
+                <th>Name</th>
+                <th>Date of Birth</th>
+                <th>SSN</th>
                 <th></th>
             </thead>
 
             <tbody>
+                {% for customer in customers %}
                 <tr>
-                    <td>{{account.acctn}}</td>
-                    <td id="accountBalance">{{account.formatted_balance()}}</td>
-                    <td>{{account.prod}}</td>
+                    <td><a href="customer?cid={{customer.customer_id}}">{{customer.name}}</a></td>
+                    <td>{{customer.dob}}</td>
+                    <td>{{customer.formatted_string_ssn()}}</td>
                     <td></td>
                 </tr>
+                {% endfor %}
             </tbody>
 
-            <thead class="thead-dark">
-                <th>Time</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Balance</th>
-            </thead>
+        {% if account %}
+                <thead class="thead-dark">
+                    <th>Account Number</th>
+                    <th>Balance</th>
+                    <th>Type</th>
+                    <th></th>
+                </thead>
 
-            <tbody>
-                {% for transaction in account.transactions %}
+                <tbody>
                     <tr>
-                        <td>{{transaction.time}}</td>
-                        <td>{{transaction.description}}</td>
-                        {% if transaction.isDebit() %}
-                            <td class="trans" data-dir="debit">({{ transaction.formatted_amount() }})</td>
-                        {% else %}
-                            <td class="trans" data-dir="credit">{{ transaction.formatted_amount() }}</td>
-                        {% endif %}
-                        <td class="runningBalance"></td>
+                        <td>{{account.acctn}}</td>
+                        <td id="accountBalance">{{account.formatted_balance()}}</td>
+                        <td>{{account.prod}}</td>
+                        <td></td>
                     </tr>
-                {%endfor%}
-            </tbody>
+                </tbody>
 
-        </table>
-    {%endif%}
+                <thead class="thead-dark">
+                    <th>Time</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Balance</th>
+                </thead>
+
+                <tbody>
+                    {% for transaction in account.transactions %}
+                        <tr>
+                            <td>{{transaction.time}}</td>
+                            <td>{{transaction.description}}</td>
+                            {% if transaction.isDebit() %}
+                                <td class="trans" data-dir="debit">({{ transaction.formatted_amount() }})</td>
+                            {% else %}
+                                <td class="trans" data-dir="credit">{{ transaction.formatted_amount() }}</td>
+                            {% endif %}
+                            <td class="runningBalance"></td>
+                        </tr>
+                    {%endfor%}
+                </tbody>
+
+            </table>
+        {%endif%}
+    </div>
 {%endif%}
 
 

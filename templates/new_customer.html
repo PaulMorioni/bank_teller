@@ -9,21 +9,21 @@
 
             <p>
                 {{ form.name.label }}<br>
-                {{ form.name }}
+                {{ form.name (class='form-control')}}
                 <br>
                 {% if form.name.errors %}
                     <ul class="error">{% for error in form.name.errors %}<li>{{ error }}</li>{% endfor %}</ul>
                 {% endif %}
 
                 {{ form.dob.label }}<br>
-                {{ form.dob }}
+                {{ form.dob (class='form-control')}}
                 <br>
                 {% if form.dob.errors %}
                     <ul class="error">{% for error in form.dob.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
                 {% endif %}
 
                 {{ form.ssn.label }}<br>
-                {{ form.ssn }}
+                {{ form.ssn (class='form-control')}}
                 <br>
                 {% if form.ssn.errors %}
                     <ul class="error">{% for error in form.ssn.errors %}<li>{{ error }}</li>{% endfor %}</ul> 
@@ -34,7 +34,7 @@
                 {% endif %}
 
 
-                {{ form.submit }}
+                {{ form.submit (class='form-control')}}
                 <br>
             </p>
     </form>

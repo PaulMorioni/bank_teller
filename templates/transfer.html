@@ -5,25 +5,35 @@
 {% block content %}
 
 
-    <div>
-        <legend>Transfer</legend>
-        <form action = "/transfer" method= POST>
-            <p>
-                {{ form.debit_account.label }}<br>
-                {{ form.debit_account }}
-                <br>
+    <div class="contatiner">
+        <div class="row">
+            <div class="col-5 col-sm-4 col-lg-3 text-center mx-auto">
+                <form action = "/transfer" method= POST></form>
+                    <div class=" text-lg-center">
+                        <legend>Transfer</legend>
+                    </div>
+                
+                    <div class="form-group col-xsm-2 ">
+                        {{ form.debit_account.label }}
+                        {{ form.debit_account (class='form-control')}}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.credit_account.label }}
+                        {{ form.credit_account (class='form-control')}}
+                    </div class="form-group">
+                    
+                    <div class="form-group">
+                        {{ form.amount.label }}
+                        {{ form.amount (class='form-control')}}
+                    </div>
+    
+                    <div class="col-8 col-sm-8 col-md-8 col-lg-6 col-offset-6 centered mx-auto">
+                        {{ form.submit (class='form-control btn btn-primary')}}
+                    </div>
 
-                {{ form.credit_account.label }}<br>
-                {{ form.credit_account }}
-                <br>
-
-                {{ form.amount.label }}<br>
-                {{ form.amount }}
-                <br>
-
-                {{ form.submit }}
-                <br>
-            </p>
-        </form>
+                </form>
+            </div>
+        </div>
     </div>
 {% endblock %}
