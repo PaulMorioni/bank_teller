@@ -17,3 +17,18 @@
 [data-dir='debit'] {
     color: red;
 }
+
+.balanceTable{
+    background-color: rgb(138, 136, 136);
+}
+
+.perifTable{
+    background-color: lightsteelblue;
+}
+
+body{
+    background-color: lightskyblue;
+}
+.navbar{
+    background-color: navy;
+}

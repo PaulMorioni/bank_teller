@@ -20,10 +20,6 @@ app.secret_key = 'y337ksdfwh34132w'
 locale.setlocale( locale.LC_ALL,'English_United States.1252')
 
 assets = Environment(app)
-        
-#js = Bundle('jquery.min.js', 'jquery.min.map', 'popper.min.js', 'popper.min.js.map', 'bootstrap.min.js', 'bootstrap.min.js.map', 'balance.js', output='gen/main.js')
-
-#assets.register('main_js', js)
 
 
 debit_trancodes = [50, 500, 150]
@@ -529,7 +525,7 @@ def sell():
 @app.route('/new_account', methods = ['POST', 'GET'])   #TODO add cash and check deposit fields to allow for teller cash handeling
 def make_account():
     form = NewAccountForm()
-    error = []
+    errors = []
     trancode = 13
     if request.method == 'POST':
         if form.validate() == False:
@@ -593,6 +589,8 @@ def make_customer():
 
 @app.route('/search', methods = ['POST', 'GET']) 
 def search():
+    errors = []
+    
     wform = SearchForm()
 
     customer_attr_types = [('name', 'Name'), ('ssn', 'SSN')]

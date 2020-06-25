@@ -6,26 +6,26 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-6 text-center mx-auto">
-            <form action = "new_account" method = post>
+        <div class="col-8 text-center mx-auto">
+            <form action = "new_account" method = post name="newAccountForm">
                 <legend>New Account Form</legend>  
                 
-                <div class="form-group col-10 mx-auto">
+                <div class="form-group col-8 mx-auto">
                     {{ form.account_number.label }}
                     {{ form.account_number (class='form-control')}}
                 </div>
 
-                <div class="form-group col-10 mx-auto">
+                <div class="form-group col-8 mx-auto">
                     {{ form.primary_ssn.label }}
                     {{ form.primary_ssn (class='form-control')}}
                 </div>
           
-                <div class="form-group col-10 mx-auto">
+                <div class="form-group col-8 mx-auto">
                     {{ form.bal.label }}
                     {{ form.bal (class='form-control')}}
                 </div>
 
-                <div class="btn-group btn-group-toggle col-12 mx-auto form-group" data-toggle="buttons">
+                <div class="btn-group btn-group-toggle mx-auto form-group" data-toggle="buttons" name="account_type">
                     <label class="btn btn-secondary">
                         <input type="radio" name="product" id="product1" value="Regular Non-Personal">Regular Non-Personal</input>
                     </label>
